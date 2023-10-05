@@ -48,4 +48,4 @@ complete the challenges.
 
 No matter what you choose, you **must** at least read the challenges.
 
-- [Challenges](challenges.md)
+- [Challenges](authentication_challenges.md)
