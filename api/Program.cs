@@ -5,6 +5,16 @@ using service;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(4);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+});
+
 // Add services to the container.
 builder.Services.AddSqLiteDataSource();
 
@@ -29,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSecurityHeaders();
+
+app.UseSession();
 
 app.UseSpaStaticFiles();
 app.UseSpa(conf => { conf.Options.SourcePath = frontEndRelativePath; });

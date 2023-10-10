@@ -9,6 +9,7 @@ import { ResponseDto, User } from "src/models";
 @Component({
   template: `
     <ion-content style="position: absolute; top: 0;">
+      <ion-button (click)="logout()">Logout</ion-button>
       <ion-list [inset]="true">
         <ion-item [attr.data-testid]="'card_'+user.email" *ngFor="let user of state.users">
           <ion-avatar slot="start">
@@ -28,7 +29,7 @@ export class UsersComponent implements OnInit {
   constructor(
     public state: State,
     private http: HttpClient,
-    private toastController: ToastController
+    private toast: ToastController
   ) {
 
   }
@@ -39,6 +40,16 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchUsers();
+  }
+
+  async logout() {
+    const url = '/api/account/logout';
+    await firstValueFrom(this.http.post<ResponseDto<any>>(url, {}));
+    (await this.toast.create({
+      message: 'Successfully logged out',
+      duration: 5000,
+      color: 'success',
+    })).present()
   }
 }
 

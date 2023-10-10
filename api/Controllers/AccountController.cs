@@ -20,6 +20,7 @@ public class AccountController : ControllerBase
     public ResponseDto Login([FromBody] LoginDto dto)
     {
         var user = _service.Authenticate(dto.Email, dto.Password);
+        HttpContext.SetSessionData(SessionData.FromUser(user!));
         return new ResponseDto
         {
             MessageToClient = "Successfully authenticated"
@@ -47,6 +48,17 @@ public class AccountController : ControllerBase
         return new ResponseDto
         {
             ResponseData = user
+        };
+    }
+
+    [HttpPost]
+    [Route("/api/account/logout")]
+    public ResponseDto Logout()
+    {
+        HttpContext.Session.Clear();
+        return new ResponseDto()
+        {
+            MessageToClient = "Successfully logged out"
         };
     }
 }
