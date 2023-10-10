@@ -38,6 +38,8 @@ There is a button to do it automatically in the UI.
 
 ## Exercises
 
+### Password authentication
+
 Complete the exercises below.
 
 - [Security Headers](security_headers.md)
@@ -49,3 +51,29 @@ complete the challenges.
 No matter what you choose, you **must** at least read the challenges.
 
 - [Challenges](challenges.md)
+
+### Session management
+
+The exercises in this section are based the [Authentication](authentication.md)
+exercise.
+
+Either use your own solution from last or this branch of the repository as a
+starting point.
+
+You must complete:
+
+- [Prerequisite](session_management.md)
+- [Cookie with Session ID](cookie_session.md)
+- [Header with JWT](header_jwt.md)
+
+#### New Challenge
+
+Only users with the **teacher** role should be able to access the `/users`
+endpoint.
+
+`RequireAuthentication` filter authorize access to everybody that have
+authenticated themselves.
+
+You will need to implement another filter that **only authorizes** access to
+**teachers**.
+Add your new filter to `UserController`.
