@@ -5,10 +5,12 @@ import {firstValueFrom} from "rxjs";
 import { State } from "src/state";
 import { environment } from "src/environments/environment";
 import { ResponseDto, User } from "src/models";
+import { TokenService } from "src/services/token.service";
 
 @Component({
   template: `
     <ion-content style="position: absolute; top: 0;">
+      <ion-button (click)="logout()">Logout</ion-button>
       <ion-list [inset]="true">
         <ion-item [attr.data-testid]="'card_'+user.email" *ngFor="let user of state.users">
           <ion-avatar slot="start">
@@ -28,7 +30,8 @@ export class UsersComponent implements OnInit {
   constructor(
     public state: State,
     private http: HttpClient,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private tokenService: TokenService,
   ) {
 
   }
@@ -39,6 +42,15 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchUsers();
+  }
+  async logout() {
+    this.tokenService.clearToken();
+
+    (await this.toastController.create({
+      message: 'Successfully logged out',
+      duration: 5000,
+      color: 'success',
+    })).present()
   }
 }
 

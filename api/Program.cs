@@ -12,6 +12,8 @@ builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<PasswordHashRepository>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<AccountService>();
+builder.Services.AddJwtService();
+builder.Services.AddSwaggerGenWithBearerJWT();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -34,5 +36,6 @@ app.UseSpaStaticFiles();
 app.UseSpa(conf => { conf.Options.SourcePath = frontEndRelativePath; });
 
 app.MapControllers();
+app.UseMiddleware<JwtBearerHandler>();
 app.UseMiddleware<GlobalExceptionHandler>();
 app.Run();

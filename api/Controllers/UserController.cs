@@ -1,9 +1,11 @@
+using api.Filters;
 using api.TransferModels;
 using Microsoft.AspNetCore.Mvc;
 using service;
 
 namespace api.Controllers;
 
+[RequireAuthentication]
 public class UserController : ControllerBase
 {
     private readonly UserService _service;

@@ -6,11 +6,11 @@ public static class HttpContextExtensions
 {
     public static void SetSessionData(this HttpContext httpContext, SessionData data)
     {
-        throw new NotImplementedException();
+        httpContext.Items["data"] = data;
     }
 
     public static SessionData? GetSessionData(this HttpContext httpContext)
     {
-        throw new NotImplementedException();
+        return httpContext.Items["data"] as SessionData;
     }
 }
