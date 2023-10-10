@@ -7,11 +7,13 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import { UsersComponent } from './users.component';
 import { RegisterComponent } from './register.component';
 import { LoginComponent } from './login.component';
+import { ErrorHttpInterceptor } from 'src/interceptors/error-http-interceptor';
 
+// @ts-ignore
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,7 +28,9 @@ import { LoginComponent } from './login.component';
     HttpClientModule,
     ReactiveFormsModule
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorHttpInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

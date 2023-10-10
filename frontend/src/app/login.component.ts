@@ -50,20 +50,12 @@ export class LoginComponent {
 
   async submit() {
     const url = '/api/account/login';
-    try {
-      var response = await firstValueFrom(this.http.post<ResponseDto<any>>(url, this.form.value));
+    var response = await firstValueFrom(this.http.post<ResponseDto<any>>(url, this.form.value));
 
-      (await this.toast.create({
-        message: response.messageToClient,
-        color: "success",
-        duration: 5000
-      })).present();
-    } catch (e) {
-      (await this.toast.create({
-        message: (e as HttpErrorResponse).error.messageToClient,
-        color: "danger",
-        duration: 5000
-      })).present();
-    }
+    (await this.toast.create({
+      message: response.messageToClient,
+      color: "success",
+      duration: 5000
+    })).present();
   }
 }

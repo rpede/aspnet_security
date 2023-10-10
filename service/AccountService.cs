@@ -46,4 +46,9 @@ public class AccountService
         _passwordHashRepository.Create(user.Id, hash, salt, hashAlgorithm.GetName());
         return user;
     }
+    
+    public User? Get(SessionData data)
+    {
+        return _userRepository.GetById(data.UserId);
+    }
 }
