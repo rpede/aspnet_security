@@ -19,14 +19,22 @@ public class AccountController : ControllerBase
     [Route("/api/account/login")]
     public ResponseDto Login([FromBody] LoginDto dto)
     {
-        throw new NotImplementedException();
+        var user = _service.Authenticate(dto.Email, dto.Password);
+        return new ResponseDto
+        {
+            MessageToClient = "Successfully authenticated"
+        };
     }
 
     [HttpPost]
     [Route("/api/account/register")]
     public ResponseDto Register([FromBody] RegisterDto dto)
     {
-        throw new NotImplementedException();
+        var user = _service.Register(dto.FullName, dto.Email, dto.Password, dto.AvatarUrl);
+        return new ResponseDto
+        {
+            MessageToClient = "Successfully registered"
+        };
     }
 
     [HttpGet]

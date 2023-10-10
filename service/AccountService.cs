@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using infrastructure.DataModels;
 using infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
@@ -21,11 +22,28 @@ public class AccountService
 
     public User? Authenticate(string email, string password)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var passwordHash = _passwordHashRepository.GetByEmail(email);
+            var hashAlgorithm = PasswordHashAlgorithm.Create(passwordHash.Algorithm);
+            var isValid = hashAlgorithm.VerifyHashedPassword(password, passwordHash.Hash, passwordHash.Salt);
+            if (isValid) return _userRepository.GetById(passwordHash.UserId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Authenticate error: {Message}", e);
+        }
+
+        throw new InvalidCredentialException("Invalid credential!");
     }
 
     public User Register(string fullName, string email, string password, string? avatarUrl)
     {
-        throw new NotImplementedException();
+        var hashAlgorithm = PasswordHashAlgorithm.Create();
+        var salt = hashAlgorithm.GenerateSalt();
+        var hash = hashAlgorithm.HashPassword(password, salt);
+        var user = _userRepository.Create(fullName, email, avatarUrl);
+        _passwordHashRepository.Create(user.Id, hash, salt, hashAlgorithm.GetName());
+        return user;
     }
 }
