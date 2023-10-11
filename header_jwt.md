@@ -98,7 +98,7 @@ just invoke it in **Program.cs**.
 In fact this pattern is already being used to configure the database.
 
 See `AddSqLiteDataSource()`
-in [SQLiteServiceCollectionExtensions.cs](/home/owrflow/code/aspnet_security_prep/api/SQLiteServiceCollectionExtensions.cs).
+in [SQLiteDataSourceExtensions.cs](/home/owrflow/code/aspnet_security_prep/api/SQLiteDataSourceExtensions.cs).
 
 We need something similar for our JwtService.
 
