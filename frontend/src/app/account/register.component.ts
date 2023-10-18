@@ -1,12 +1,10 @@
 import {Component} from "@angular/core";
 import {FormBuilder, Validators} from "@angular/forms";
-import {CustomValidators} from "./custom-validators";
 import {firstValueFrom} from "rxjs";
-import {environment} from "src/environments/environment";
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
 import {ToastController} from "@ionic/angular";
-import {ResponseDto} from "src/models";
 import {Router} from "@angular/router";
+import { CustomValidators } from "../custom-validators";
 
 @Component({
   template: `

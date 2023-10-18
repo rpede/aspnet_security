@@ -1,13 +1,13 @@
 import {NgModule} from '@angular/core';
 import {PreloadAllModules, RouterModule, Routes} from '@angular/router';
-import {UsersComponent} from './users.component';
-import {RegisterComponent} from './register.component';
-import {LoginComponent} from './login.component';
 import {TabsComponent} from './tabs.component';
-import {PostsComponent} from './posts.component';
-import {PostComponent} from './post.component';
-import {AccountComponent} from './account.component';
-import {HomeComponent} from './home.component';
+import {HomeComponent} from './posts/home.component';
+import {PostsComponent} from './posts/posts.component';
+import {PostComponent} from './posts/post.component';
+import {AccountComponent} from './account/account.component';
+import {LoginComponent} from './account/login.component';
+import {RegisterComponent} from './account/register.component';
+import { UsersComponent } from './admin/users.component';
 
 const routes: Routes = [
   {

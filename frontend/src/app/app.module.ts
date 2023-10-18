@@ -7,19 +7,19 @@ import {IonicModule, IonicRouteStrategy} from '@ionic/angular';
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
-import {UsersComponent} from './users.component';
-import {RegisterComponent} from './register.component';
-import {LoginComponent} from './login.component';
 import {ErrorHttpInterceptor} from 'src/interceptors/error-http-interceptor';
 import {TokenService} from 'src/services/token.service';
 import {AuthHttpInterceptor} from 'src/interceptors/auth-http-interceptor';
 import {NgModule} from '@angular/core';
 import {TabsComponent} from './tabs.component';
 import {HeaderComponent} from './header.component';
-import {PostsComponent} from './posts.component';
-import {PostComponent} from './post.component';
-import {AccountComponent} from './account.component';
-import {HomeComponent} from './home.component';
+import {RegisterComponent} from './account/register.component';
+import {LoginComponent} from './account/login.component';
+import {AccountComponent} from './account/account.component';
+import {PostsComponent} from './posts/posts.component';
+import {HomeComponent} from './posts/home.component';
+import {PostComponent} from './posts/post.component';
+import {UsersComponent} from './admin/users.component';
 
 @NgModule({
   declarations: [
@@ -29,8 +29,8 @@ import {HomeComponent} from './home.component';
     HomeComponent,
     PostsComponent,
     PostComponent,
-    AccountComponent,
     UsersComponent,
+    AccountComponent,
     RegisterComponent,
     LoginComponent,
   ],
