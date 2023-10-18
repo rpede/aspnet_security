@@ -1,5 +1,6 @@
-import {Component} from "@angular/core";
-import * as Observable from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { User, data } from "./account.data";
+import { Observable, of } from "rxjs";
 
 @Component({
   template: `
@@ -33,12 +34,10 @@ import * as Observable from "rxjs";
   `,
   styleUrls: ['./form.css'],
 })
-export class AccountComponent {
-  account$ = Observable.of({
-    "id": 1,
-    "fullName": "Joe Doe",
-    "email": "test@example.com",
-    "avatarUrl": null,
-    "isAdmin": true
-  });
+export class AccountComponent implements OnInit {
+  account$?: Observable<User>;
+
+  ngOnInit(): void {
+    this.account$ = of(data);
+  }
 }
