@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace api.TransferModels;
+namespace service.Models.Command;
 
-public class RegisterDto
+public class RegisterCommandModel
 {
     [Required] public required string FullName { get; set; }
 

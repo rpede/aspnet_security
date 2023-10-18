@@ -1,6 +1,6 @@
-namespace api.TransferModels;
+namespace service.Models.Command;
 
-public class LoginDto
+public class LoginCommandModel
 {
     public string Email { get; set; }
     public string Password { get; set; }

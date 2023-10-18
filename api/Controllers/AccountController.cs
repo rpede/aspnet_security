@@ -2,10 +2,13 @@ using api.Filters;
 using api.TransferModels;
 using Microsoft.AspNetCore.Mvc;
 using service;
+using service.Models.Command;
+using service.Services;
 
 namespace api.Controllers;
 
 [ValidateModel]
+[ApiController]
 public class AccountController : ControllerBase
 {
     private readonly AccountService _service;
@@ -19,38 +22,28 @@ public class AccountController : ControllerBase
 
     [HttpPost]
     [Route("/api/account/login")]
-    public ResponseDto Login([FromBody] LoginDto dto)
+    public IActionResult Login([FromBody] LoginCommandModel model)
     {
-        var user = _service.Authenticate(dto.Email, dto.Password);
+        var user = _service.Authenticate(model);
         var token = _jwtService.IssueToken(SessionData.FromUser(user!));
-        return new ResponseDto
-        {
-            MessageToClient = "Successfully authenticated",
-            ResponseData = new { token },
-        };
+        return Ok(new { token });
     }
 
     [HttpPost]
     [Route("/api/account/register")]
-    public ResponseDto Register([FromBody] RegisterDto dto)
+    public IActionResult Register([FromBody] RegisterCommandModel model)
     {
-        var user = _service.Register(dto.FullName, dto.Email, dto.Password, dto.AvatarUrl);
-        return new ResponseDto
-        {
-            MessageToClient = "Successfully registered"
-        };
+        var user = _service.Register(model);
+        return Created();
     }
 
     [RequireAuthentication]
     [HttpGet]
     [Route("/api/account/whoami")]
-    public ResponseDto WhoAmI()
+    public IActionResult WhoAmI()
     {
         var data = HttpContext.GetSessionData();
         var user = _service.Get(data);
-        return new ResponseDto
-        {
-            ResponseData = user
-        };
+        return Ok(user);
     }
 }

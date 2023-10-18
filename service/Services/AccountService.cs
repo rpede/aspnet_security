@@ -3,8 +3,9 @@ using infrastructure.DataModels;
 using infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
 using Service;
+using service.Models.Command;
 
-namespace service;
+namespace service.Services;
 
 public class AccountService
 {
@@ -20,13 +21,13 @@ public class AccountService
         _passwordHashRepository = passwordHashRepository;
     }
 
-    public User? Authenticate(string email, string password)
+    public User? Authenticate(LoginCommandModel model)
     {
         try
         {
-            var passwordHash = _passwordHashRepository.GetByEmail(email);
+            var passwordHash = _passwordHashRepository.GetByEmail(model.Email);
             var hashAlgorithm = PasswordHashAlgorithm.Create(passwordHash.Algorithm);
-            var isValid = hashAlgorithm.VerifyHashedPassword(password, passwordHash.Hash, passwordHash.Salt);
+            var isValid = hashAlgorithm.VerifyHashedPassword(model.Password, passwordHash.Hash, passwordHash.Salt);
             if (isValid) return _userRepository.GetById(passwordHash.UserId);
         }
         catch (Exception e)
@@ -37,12 +38,12 @@ public class AccountService
         throw new InvalidCredentialException("Invalid credential!");
     }
 
-    public User Register(string fullName, string email, string password, string? avatarUrl)
+    public User Register(RegisterCommandModel model)
     {
         var hashAlgorithm = PasswordHashAlgorithm.Create();
         var salt = hashAlgorithm.GenerateSalt();
-        var hash = hashAlgorithm.HashPassword(password, salt);
-        var user = _userRepository.Create(fullName, email, avatarUrl);
+        var hash = hashAlgorithm.HashPassword(model.Password, salt);
+        var user = _userRepository.Create(model.FullName, model.Email, model.AvatarUrl);
         _passwordHashRepository.Create(user.Id, hash, salt, hashAlgorithm.GetName());
         return user;
     }

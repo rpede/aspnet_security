@@ -1,10 +1,8 @@
-namespace infrastructure.DataModels;
+namespace service.Models.Command;
 
-public class User
+public class CreateUserCommandModel
 {
-    public int Id { get; set; }
     public required string FullName { get; set; }
     public required string Email { get; set; }
     public string? AvatarUrl { get; set; }
-    public required bool IsAdmin { get; set; }
 }

@@ -2,6 +2,7 @@ using api;
 using api.Middleware;
 using infrastructure.Repositories;
 using service;
+using service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,10 @@ builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<PasswordHashRepository>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<AccountService>();
+builder.Services.AddSingleton<PostRepository>();
+builder.Services.AddSingleton<PostService>();
+builder.Services.AddSingleton<FollowRepository>();
+builder.Services.AddSingleton<FollowService>();
 builder.Services.AddJwtService();
 builder.Services.AddSwaggerGenWithBearerJWT();
 

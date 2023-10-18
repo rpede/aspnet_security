@@ -1,4 +1,5 @@
 using service;
+using service.Services;
 
 namespace api.Middleware;
 
