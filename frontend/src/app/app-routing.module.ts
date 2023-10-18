@@ -7,7 +7,8 @@ import {PostComponent} from './posts/post.component';
 import {AccountComponent} from './account/account.component';
 import {LoginComponent} from './account/login.component';
 import {RegisterComponent} from './account/register.component';
-import { UsersComponent } from './admin/users.component';
+import {UsersComponent} from './admin/users.component';
+import {AuthenticatedGuard} from './guards';
 
 const routes: Routes = [
   {
@@ -17,6 +18,7 @@ const routes: Routes = [
       {
         path: 'home',
         component: HomeComponent,
+        canActivate: [AuthenticatedGuard]
       },
       {
         path: 'posts',
