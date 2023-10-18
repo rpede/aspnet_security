@@ -1,12 +1,11 @@
-import {Component} from "@angular/core";
-import {FormBuilder, Validators} from "@angular/forms";
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {environment} from "src/environments/environment";
-import {firstValueFrom} from "rxjs";
-import {ResponseDto} from "src/models";
-import {ToastController} from "@ionic/angular";
-import {TokenService} from "src/services/token.service";
+import { Component } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
+import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
+import { ToastController } from "@ionic/angular";
+import { TokenService } from "src/services/token.service";
 import { Router } from "@angular/router";
+import { AccountService, Credentials } from "./account.service";
 
 @Component({
   template: `
@@ -19,7 +18,7 @@ import { Router } from "@angular/router";
                       <ion-input formControlName="email" data-testid="emailInput" placeholder="name@company.com"
                                  label-placement="floating">
                           <div slot="label">Email
-                              <ion-text *ngIf="form.controls.password.touched && form.controls.email.invalid"
+                              <ion-text *ngIf="email.touched && email.invalid"
                                         color="danger">Valid
                                   email is required
                               </ion-text>
@@ -32,7 +31,7 @@ import { Router } from "@angular/router";
                                  placeholder="****************" label-placement="floating">
                           <div slot="label">Password
                               <ion-text
-                                      *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']"
+                                      *ngIf="password.touched && password.errors?.['required']"
                                       color="danger">
                                   Required
                               </ion-text>
@@ -52,23 +51,25 @@ import { Router } from "@angular/router";
 })
 export class LoginComponent {
   readonly form = this.fb.group({
-    email: [null, [Validators.required, Validators.email]],
-    password: [null, Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
   });
+
+  get email() { return this.form.controls.email; }
+  get password() { return this.form.controls.password; }
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly http: HttpClient,
+    private readonly service: AccountService,
     private readonly router: Router,
     private readonly toast: ToastController,
-    private readonly tokenService: TokenService
-  ) {
-  }
+    private readonly token: TokenService
+  ) { }
 
   async submit() {
-    const url = '/api/account/login';
-    var response = await firstValueFrom(this.http.post<{ token: string }>(url, this.form.value));
-    this.tokenService.setToken(response.token);
+    if (this.form.invalid) return;
+    const { token } = await firstValueFrom(this.service.login(this.form.value as Credentials));
+    this.token.setToken(token);
 
     this.router.navigateByUrl('/home');
 

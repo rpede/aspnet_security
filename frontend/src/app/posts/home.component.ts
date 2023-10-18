@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { Post, User, data } from './home.data';
-import { Observable, map, of } from "rxjs";
+import { Post, User, HomeService } from './home.service';
+import { Observable, combineLatestAll, combineLatestWith, map, of, switchMap, zip } from "rxjs";
 
 @Component({
   template: `
@@ -57,17 +57,20 @@ export class HomeComponent implements OnInit {
   followers$?: Observable<User[]>;
   following$?: Observable<User[]>;
 
+  constructor(private readonly service: HomeService) { }
+
   ngOnInit(): void {
-    const user$ = of(data).pipe(map(d => d.User));
-    this.segments$ = user$.pipe(map(({ postCount, followerCount, followingCount }) =>
-      [
-        { label: `Uploads (${postCount})`, value: "uploads" },
-        { label: `Followers (${followerCount})`, value: "followers" },
-        { label: `Following (${followingCount})`, value: "following" },
-      ]
-    ));
-    this.posts$ = user$.pipe(map(({ posts }) => posts));
-    this.followers$ = user$.pipe(map(({ followers }) => followers));
-    this.following$ = user$.pipe(map(({ following }) => following));
+    const user$ = this.service.getUser();
+    this.posts$ = user$.pipe(switchMap(({ id }) => this.service.getPosts(id)));
+    this.followers$ = user$.pipe(switchMap(({ id }) => this.service.getFollowers(id)));
+    this.following$ = user$.pipe(switchMap(({ id }) => this.service.getFollowing(id)));
+    this.segments$ = zip(this.posts$, this.followers$, this.following$)
+      .pipe(map(([posts, followers, following]) =>
+        [
+          { label: `Uploads (${posts.length})`, value: "uploads" },
+          { label: `Following (${following.length})`, value: "following" },
+          { label: `Followers (${followers.length})`, value: "followers" },
+        ]
+      ));
   }
 }

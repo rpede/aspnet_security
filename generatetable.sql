@@ -1,6 +1,10 @@
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS followers;
+DROP TABLE IF EXISTS password_hash;
+DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS users;
+
 create table users
 (
     id         integer primary key autoincrement,
@@ -26,7 +30,6 @@ INSERT INTO users (full_name, email, avatar_url)
 VALUES ('Annaliese Woodley', 'awoodley4@reddit.com', 'https://robohash.org/veritatisetenim.png?size=50x50&set=set1');
 
 
-DROP TABLE IF EXISTS password_hash;
 create table password_hash
 (
     user_id   integer      NOT NULL,
@@ -42,7 +45,6 @@ VALUES ((SELECT id FROM users WHERE email = 'test@example.com'),
         'KWmoAN50Z0dSh4HAZ2H+2r5apJ5weqi9Q4HkOPFBf4EcDIPET6vBFBh3d99Y9Hd6kpNOr/INIY2+zHX75gGTWQ5FUnFH5pJsLhYpWHITgVNUp8o+Ug9+2x+O4NOHxp5dAwNRB9VKhrZC2hPRc/OJ8hCgtlwJW8m/k/XphaHaUZU=',
         'argon2id');
 
-DROP TABLE IF EXISTS followers;
 create table followers
 (
     follower_id  integer NOT NULL,
@@ -53,18 +55,17 @@ create table followers
 
 INSERT INTO followers (follower_id, following_id)
 VALUES ((SELECT id FROM users WHERE email = 'dlysaght1@shareasale.com'),
-        (SELECT id FROM users WHERE email = 'mde0@salon.com'));
+        (SELECT id FROM users WHERE email = 'test@example.com'));
 INSERT INTO followers (follower_id, following_id)
 VALUES ((SELECT id FROM users WHERE email = 'jburris2@illinois.edu'),
-        (SELECT id FROM users WHERE email = 'mde0@salon.com'));
+        (SELECT id FROM users WHERE email = 'test@example.com'));
 INSERT INTO followers (follower_id, following_id)
 VALUES ((SELECT id FROM users WHERE email = 'zmacaughtrie3@blogger.com'),
-        (SELECT id FROM users WHERE email = 'mde0@salon.com'));
+        (SELECT id FROM users WHERE email = 'test@example.com'));
 INSERT INTO followers (follower_id, following_id)
-VALUES ((SELECT id FROM users WHERE email = 'mde0@salon.com'),
+VALUES ((SELECT id FROM users WHERE email = 'test@example.com'),
         (SELECT id FROM users WHERE email = 'dlysaght1@shareasale.com'));
 
-DROP TABLE IF EXISTS posts;
 create table posts
 (
     id        integer primary key autoincrement,
@@ -75,14 +76,14 @@ create table posts
 );
 
 INSERT INTO posts (author_id, title, content)
-VALUES ((SELECT id FROM users WHERE email = 'mde0@salon.com'),
+VALUES ((SELECT id FROM users WHERE email = 'test@example.com'),
         'My First Post',
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Id neque aliquam vestibulum morbi. Auctor neque vitae tempus quam. Diam sit amet nisl suscipit adipiscing. Amet est placerat in egestas erat imperdiet sed euismod nisi. Neque vitae tempus quam pellentesque nec nam aliquam sem et. Malesuada fames ac turpis egestas sed tempus urna et. Velit laoreet id donec ultrices. Ante metus dictum at tempor commodo ullamcorper a lacus vestibulum. Dis parturient montes nascetur ridiculus. A condimentum vitae sapien pellentesque habitant morbi tristique senectus et. Egestas purus viverra accumsan in nisl nisi.');
 INSERT INTO posts (author_id, title, content)
-VALUES ((SELECT id FROM users WHERE email = 'mde0@salon.com'),
+VALUES ((SELECT id FROM users WHERE email = 'test@example.com'),
         'Another post',
         'Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Mattis ullamcorper velit sed ullamcorper morbi. Nec sagittis aliquam malesuada bibendum arcu vitae elementum. Enim nulla aliquet porttitor lacus. Massa sed elementum tempus egestas sed sed risus. Dignissim diam quis enim lobortis scelerisque fermentum. Magna sit amet purus gravida quis blandit turpis cursus. Semper viverra nam libero justo laoreet sit amet cursus sit. Maecenas pharetra convallis posuere morbi leo urna. Quis eleifend quam adipiscing vitae proin sagittis nisl rhoncus. At urna condimentum mattis pellentesque id nibh tortor. Pharetra vel turpis nunc eget. Est pellentesque elit ullamcorper dignissim. Rhoncus dolor purus non enim praesent elementum facilisis. Ligula ullamcorper malesuada proin libero nunc consequat interdum varius sit.');
 INSERT INTO posts (author_id, title, content)
-VALUES ((SELECT id FROM users WHERE email = 'jburris2@illinois.edu'),
+VALUES ((SELECT id FROM users WHERE email = 'mde0@salon.com'),
         'Motivation',
         'Don''t be pushed around by the fears in your mind. Be led by the dreams in your heart.');

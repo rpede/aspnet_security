@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Post, data } from "./post.data";
-import { Observable, of } from "rxjs";
+import { Observable, switchMap } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { Post, PostService } from "./post.service";
 
 @Component({
   template: `
@@ -23,7 +24,14 @@ import { Observable, of } from "rxjs";
 export class PostComponent implements OnInit {
   post$?: Observable<Post>;
 
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly service: PostService,
+  ) { }
+
   ngOnInit(): void {
-    this.post$ = of(data);
+    this.post$ = this.route.params.pipe(switchMap(({ id }) =>
+      this.service.getPost(id)
+    ));
   }
 }

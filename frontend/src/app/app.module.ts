@@ -21,6 +21,10 @@ import { HomeComponent } from './posts/home.component';
 import { PostComponent } from './posts/post.component';
 import { UsersComponent } from './admin/users.component';
 import { AuthenticatedGuard } from './guards';
+import { AccountService } from './account/account.service';
+import { HomeService } from './posts/home.service';
+import { PostsService } from './posts/posts.service';
+import { PostService } from './posts/post.service';
 
 @NgModule({
   declarations: [
@@ -48,6 +52,10 @@ import { AuthenticatedGuard } from './guards';
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     TokenService,
     AuthenticatedGuard,
+    AccountService,
+    HomeService,
+    PostsService,
+    PostService,
   ],
   bootstrap: [AppComponent],
 })

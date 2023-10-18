@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { User, data } from "./account.data";
-import { Observable, of } from "rxjs";
+import { Observable } from "rxjs";
+import { AccountService, User } from "./account.service";
 
 @Component({
   template: `
@@ -37,7 +37,9 @@ import { Observable, of } from "rxjs";
 export class AccountComponent implements OnInit {
   account$?: Observable<User>;
 
+  constructor(private readonly service: AccountService) { }
+
   ngOnInit(): void {
-    this.account$ = of(data);
+    this.account$ = this.service.getCurrentUser();
   }
 }

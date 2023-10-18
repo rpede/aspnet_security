@@ -1,10 +1,8 @@
-import {Component, OnInit} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
-import {ModalController, ToastController} from "@ionic/angular";
-import {firstValueFrom} from "rxjs";
-import { State } from "src/state";
-import { environment } from "src/environments/environment";
-import { ResponseDto, User } from "src/models";
+import { Component, OnInit } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { ToastController } from "@ionic/angular";
+import { Observable } from "rxjs";
+import { User } from "src/models";
 import { TokenService } from "src/services/token.service";
 
 @Component({
@@ -12,7 +10,7 @@ import { TokenService } from "src/services/token.service";
     <ion-content style="position: absolute; top: 0;">
       <ion-button (click)="logout()">Logout</ion-button>
       <ion-list [inset]="true">
-        <ion-item [attr.data-testid]="'card_'+user.email" *ngFor="let user of state.users">
+        <ion-item [id]="'card_'+user.id" *ngFor="let user of users$ | async">
           <ion-avatar slot="start">
             <img [src]="user.avatarUrl">
           </ion-avatar>
@@ -26,9 +24,9 @@ import { TokenService } from "src/services/token.service";
   `
 })
 export class UsersComponent implements OnInit {
+  users$?: Observable<User[]>;
 
   constructor(
-    public state: State,
     private http: HttpClient,
     private toastController: ToastController,
     private tokenService: TokenService,
@@ -36,8 +34,7 @@ export class UsersComponent implements OnInit {
 
   }
   async fetchUsers() {
-    const result = await firstValueFrom(this.http.get<ResponseDto<User[]>>('/api/users'))
-    this.state.users = result.responseData!;
+    this.users$ = this.http.get<User[]>('/api/users');
   }
 
   ngOnInit(): void {

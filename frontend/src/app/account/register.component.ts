@@ -1,10 +1,11 @@
-import {Component} from "@angular/core";
-import {FormBuilder, Validators} from "@angular/forms";
-import {firstValueFrom} from "rxjs";
-import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {ToastController} from "@ionic/angular";
-import {Router} from "@angular/router";
+import { Component } from "@angular/core";
+import { FormBuilder, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { ToastController } from "@ionic/angular";
+import { Router } from "@angular/router";
 import { CustomValidators } from "../custom-validators";
+import { AccountService, Registration } from "./account.service";
 
 @Component({
   template: `
@@ -17,7 +18,7 @@ import { CustomValidators } from "../custom-validators";
             <ion-input formControlName="fullName" data-testid="fullNameInput" placeholder="Your full name"
                        label-placement="floating">
               <div slot="label">Name
-                <ion-text *ngIf="form.controls.password.touched && form.controls.fullName.invalid" color="danger">
+                <ion-text *ngIf="fullName.touched && fullName.invalid" color="danger">
                   Required
                 </ion-text>
               </div>
@@ -28,7 +29,7 @@ import { CustomValidators } from "../custom-validators";
             <ion-input formControlName="email" data-testid="emailInput" placeholder="Email (also used for login)"
                        label-placement="floating">
               <div slot="label">Email
-                <ion-text *ngIf="form.controls.password.touched && form.controls.email.invalid" color="danger">Valid
+                <ion-text *ngIf="email.touched && email.invalid" color="danger">Valid
                   email is required
                 </ion-text>
               </div>
@@ -39,12 +40,10 @@ import { CustomValidators } from "../custom-validators";
             <ion-input type="password" formControlName="password" data-testid="passwordInput"
                        placeholder="Type a hard to guess password" label-placement="floating">
               <div slot="label">Password
-                <ion-text *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']"
-                          color="danger">
+                <ion-text *ngIf="password.touched && password.errors?.['required']" color="danger">
                   Required
                 </ion-text>
-                <ion-text *ngIf="form.controls.password.touched && form.controls.password.errors?.['minlength']"
-                          color="danger">
+                <ion-text *ngIf="password.touched && password.errors?.['minlength']" color="danger">
                   Too short
                 </ion-text>
               </div>
@@ -55,8 +54,7 @@ import { CustomValidators } from "../custom-validators";
             <ion-input type="password" formControlName="passwordRepeat" data-testid="passwordRepeatInput"
                        placeholder="Repeat your password to make sure it was typed correct" label-placement="floating">
               <div slot="label">Password (again)
-                <ion-text *ngIf="form.controls.password.touched && form.controls.passwordRepeat.errors?.['matchOther']"
-                          color="danger">
+                <ion-text *ngIf="passwordRepeat.touched && passwordRepeat.errors?.['matchOther']" color="danger">
                   Must match the password
                 </ion-text>
               </div>
@@ -73,39 +71,34 @@ import { CustomValidators } from "../custom-validators";
 })
 export class RegisterComponent {
   readonly form = this.fb.group({
-    fullName: [null, Validators.required],
-    email: [null, [Validators.required, Validators.email]],
-    password: [null, [Validators.required, Validators.minLength(8)]],
-    passwordRepeat: [null, [Validators.required, CustomValidators.matchOther('password')]],
+    fullName: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    passwordRepeat: ['', [Validators.required, CustomValidators.matchOther('password')]],
     avatarUrl: [null],
   });
 
+  get fullName() { return this.form.controls.fullName; }
+  get email() { return this.form.controls.email; }
+  get password() { return this.form.controls.password }
+  get passwordRepeat() { return this.form.controls.passwordRepeat }
+  get avatarUrl() { return this.form.controls.avatarUrl }
+
   constructor(
     private readonly fb: FormBuilder,
-    private readonly http: HttpClient,
-    private readonly router: Router,
+    private readonly service: AccountService,
     private readonly toast: ToastController
   ) {
   }
 
   async submit() {
-    const url = '/api/account/register';
-    try {
-      var response = await firstValueFrom(this.http.post<any>(url, this.form.value));
+    if (this.form.invalid) return;
+    await firstValueFrom(this.service.register(this.form.value as Registration));
 
-      (await this.toast.create({
-        message: "Thank you for signing up!",
-        color: "success",
-        duration: 5000
-      })).present();
-
-      this.router.navigateByUrl('/login');
-    } catch (e) {
-      (await this.toast.create({
-        message: (e as HttpErrorResponse).error.messageToClient,
-        color: "danger",
-        duration: 5000
-      })).present();
-    }
+    (await this.toast.create({
+      message: "Thank you for signing up!",
+      color: "success",
+      duration: 5000
+    })).present();
   }
 }

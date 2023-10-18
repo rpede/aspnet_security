@@ -1,10 +1,10 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { Post, data } from "./posts.data";
-import { Observable, of } from "rxjs";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Observable } from "rxjs";
+import { Post, PostsService } from "./posts.service";
 
 @Component({
-  template: `
+    template: `
       <app-title title="Posts"></app-title>
       <ion-content>
           <ion-grid [fixed]="true">
@@ -25,11 +25,14 @@ import { Observable, of } from "rxjs";
   `
 })
 export class PostsComponent implements OnInit {
-  posts$?: Observable<Post[]>;
+    posts$?: Observable<Post[]>;
 
-  constructor(readonly router: Router) { }
+    constructor(
+        readonly router: Router,
+        private readonly service: PostsService,
+    ) { }
 
-  ngOnInit(): void {
-    this.posts$ = of(data);
-  }
+    ngOnInit(): void {
+        this.posts$ = this.service.getPosts();
+    }
 }
