@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Post, User, HomeService } from './home.service';
-import { Observable, combineLatestAll, combineLatestWith, map, of, switchMap, zip } from "rxjs";
+import { Observable, map, shareReplay, switchMap, zip } from "rxjs";
 
 @Component({
   template: `
@@ -60,10 +60,10 @@ export class HomeComponent implements OnInit {
   constructor(private readonly service: HomeService) { }
 
   ngOnInit(): void {
-    const user$ = this.service.getUser();
-    this.posts$ = user$.pipe(switchMap(({ id }) => this.service.getPosts(id)));
-    this.followers$ = user$.pipe(switchMap(({ id }) => this.service.getFollowers(id)));
-    this.following$ = user$.pipe(switchMap(({ id }) => this.service.getFollowing(id)));
+    const user$ = this.service.getUser().pipe(shareReplay());
+    this.posts$ = user$.pipe(switchMap(({ id }) => this.service.getPosts(id)), shareReplay());
+    this.followers$ = user$.pipe(switchMap(({ id }) => this.service.getFollowers(id)), shareReplay());
+    this.following$ = user$.pipe(switchMap(({ id }) => this.service.getFollowing(id)), shareReplay());
     this.segments$ = zip(this.posts$, this.followers$, this.following$)
       .pipe(map(([posts, followers, following]) =>
         [

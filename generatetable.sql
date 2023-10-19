@@ -15,7 +15,7 @@ create table users
 );
 
 INSERT INTO users (full_name, email, avatar_url, admin)
-VALUES ('Joe Doe', 'test@example.com', null, true);
+VALUES ('Joe Doe', 'test@example.com', 'https://robohash.org/test@example.com', true);
 INSERT INTO users (full_name, email, avatar_url)
 VALUES ('Mercie De Malchar', 'mde0@salon.com', 'https://robohash.org/idmodiut.png?size=50x50&set=set1');
 INSERT INTO users (full_name, email, avatar_url)
