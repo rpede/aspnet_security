@@ -35,7 +35,7 @@ public class AccountService
             _logger.LogError("Authenticate error: {Message}", e);
         }
 
-        throw new InvalidCredentialException("Invalid credential!");
+        return null;
     }
 
     public User Register(RegisterCommandModel model)

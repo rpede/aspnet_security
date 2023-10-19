@@ -10,6 +10,8 @@ Install dependency into **api** project.
 dotnet add api package HotChocolate.AspNetCore 
 ```
 
+### Basic API with static data
+
 Create some types:
 
 ```csharp
@@ -75,6 +77,8 @@ The library we are using gives us a really cool UI we can use to play around wit
 It is kinda similar to Swagger in that it is build into our web server.
 But it is much nicer interface, more like and Postman.
 
+I will refer to it as GraphQL IDE.
+
 Open [http://localhost:5000/graphql/](http://localhost:5000/graphql/)
 
 Click *Create Document* and type:
@@ -89,6 +93,8 @@ Click *Create Document* and type:
 }
 ```
 
+### Query with dynamic data
+
 At the moment our API only exposes static data, which isn't super useful.
 Let's fix it so we get data from the database instead.
 
@@ -96,6 +102,17 @@ We can fetch dynamic data with resolvers.
 
 [From documentation](https://chillicream.com/docs/hotchocolate/v13/fetching-data/resolvers)
 > A resolver is a generic function that fetches data from an arbitrary data source for a particular field.
+
+Lets a add a resolver function [QueryGql](api/GraphQL/Types/QueryGql.cs) that fetches all posts
+
+```csharp
+public IEnumerable<PostGql> GetPosts([Service] PostService service)
+{
+    return service.GetAll().Select(PostGql.FromQueryModel);
+}
+```
+
+### Using Session
 
 Add a method to convert query model to GraphQL model in [UserGql](api/GraphQL/Types/UserGql.cs)
 
@@ -113,6 +130,8 @@ Add a method to convert query model to GraphQL model in [UserGql](api/GraphQL/Ty
         };
     }
 ```
+
+`[GraphQLIgnore]` just means that the method won't be part of the schema.
 
 Change **QueryGql** class
 
@@ -222,7 +241,7 @@ Execute the query
 }
 ```
 
-Lets provide an option to fetch ones own posts.
+Lets also provide an option to fetch ones own posts.
 
 In [UserGql](./api/GraphQL/Types/UserGql.cs) add:
 
@@ -230,16 +249,6 @@ In [UserGql](./api/GraphQL/Types/UserGql.cs) add:
 public IEnumerable<PostGql> GetPosts([Service] PostService service)
 {
     return service.GetByAuthor(this.Id).Select(PostGql.FromQueryModel);
-}
-```
-
-And to fetch all posts.
-[QueryGql](api/GraphQL/Types/QueryGql.cs)
-
-```csharp
-public IEnumerable<PostGql> GetPosts([Service] PostService service)
-{
-    return service.GetAll().Select(PostGql.FromQueryModel);
 }
 ```
 
@@ -263,6 +272,156 @@ Try to include posts in the query
     }
 }
 ```
+
+### Query inputs
+
+It is also possible to provide input to resolver functions.
+
+Add to [QueryGql](api/GraphQL/Types/QueryGql.cs);
+
+```csharp
+public PostGql? GetPost([Service] PostService service, int id)
+{
+    var model = service.GetById(id);
+    if (model == null) return null;
+    return PostGql.FromQueryModel(model);
+}
+```
+
+Query with:
+
+```graphql
+query GetPost($id: Int!) {
+  post(id: $id) {
+    id
+    title
+    content
+  }
+}
+```
+
+`$id` is called variable in GraphQL, but it serves the same purpose as parameters in your Dapper+SQL.
+
+You can set a value for in the the bottom pane of GraphQL IDE.
+
+```json
+{
+  "id": 1
+}
+```
+
+Not that GraphQL variables is just a JSON document.
+
+### Mutation and union types
+
+All state changes in a GraphQL API is done with mutations.
+
+We could start writing one for login so we don't need Swagger anymore.
+
+Before we write the mutation we need some types for input and result.
+
+```csharp
+// api/GraphQL/Types/LoginTypes.cs
+[GraphQLName("Credentials")]
+public class CredentialsGql
+{
+    public string Email { get; set; }
+    public string Password { get; set; }
+
+    [GraphQLIgnore]
+    public LoginCommandModel ToModel() => new() { Email = Email, Password = Password };
+}
+
+[UnionType("LoginResult")]
+public interface ILoginResultGql { }
+
+[GraphQLName("TokenResponse")]
+public class TokenResultGql : ILoginResultGql
+{
+    public string Token { get; set; }
+}
+
+[GraphQLName("InvalidCredentials")]
+public class InvalidCredentialsGql : ILoginResultGql
+{
+    public string Message { get; set; }
+}
+```
+
+We will be using a feature called Union type.
+It basically means that the result from login mutation can be TokenResponse or InvalidCredentials.
+
+Now for the mutation:
+
+```csharp
+// api/GraphQL/Types/MutationGql.cs
+    
+[GraphQLName("Mutation")]
+public class MutationGql
+{
+    public ILoginResultGql Login(CredentialsGql input, [Service] AccountService accountService,
+        [Service] JwtService jwtService)
+    {
+        var user = accountService.Authenticate(input.ToModel());
+        if (user == null) return new InvalidCredentialsGql { Message = "Invalid credentials" };
+        var session = SessionData.FromUser(user);
+        var token = jwtService.IssueToken(session);
+        return new TokenResultGql { Token = token };
+    }
+}
+```
+
+Notice how mutation class looks a lot like the query class.
+The only difference is just the convention that only mutations make changes.
+
+Also notice that ILoginResultGql which is just an interface.
+Because the concrete return types has to be part of the schema, we need to tell the framework about them.
+
+In [Program.cs](api/Program.cs), change to:
+
+```csharp
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<QueryGql>()
+    .AddMutationType<MutationGql>()
+    .AddType<TokenResultGql>()
+    .AddType<InvalidCredentialsGql>()
+    .AddHttpRequestInterceptor<HttpRequestInterceptor>();
+```
+
+Note that we just keep chaining calls to `AddGraphQLServer()` for all the type it needs to know about to build our API.
+
+In GraphQL IDE:
+
+```graphql
+mutation Login($input: CredentialsInput!){
+  login(input: $input) {
+    __typename
+    ... on TokenResponse {
+      token
+    }
+    ...on InvalidCredentials {
+      message
+    }
+  }
+}
+```
+
+`__typename` just includes the name of the type we get back.
+Useful when the frontend needs to tell them apart.
+
+Test with the variables:
+
+```json
+{
+  "input": {
+    "email": "test@example.com",
+    "password": "testtest"
+  }
+}
+```
+
+Mess up the credentials and the return type will change.
 
 ## Frontend
 
@@ -358,6 +517,14 @@ Update [HomeService](frontend/src/app/posts/posts.service.ts)
 and [HomeComponent](frontend/src/app/posts/home.component.ts) in frontend to use GraphQL to fetch
 data.
 See if you can do it with just one query.
+
+### Login and Register with mutations
+
+On the frontend change login method in [AccountService](frontend/src/app/account/account.service.ts) to use the login
+mutation.
+
+Do the same for register, but remember there is no mutation for it in the backend yet, so you will also have to create
+it.
 
 ### Lazy Loading
 

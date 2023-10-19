@@ -25,6 +25,9 @@ builder.Services.AddSwaggerGenWithBearerJWT();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<QueryGql>()
+    .AddMutationType<MutationGql>()
+    .AddType<TokenResultGql>()
+    .AddType<InvalidCredentialsGql>()
     .AddHttpRequestInterceptor<HttpRequestInterceptor>();
 
 builder.Services.AddControllers();
