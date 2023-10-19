@@ -19,14 +19,16 @@ public class FollowService
         return _repository.Create(followerId: model.OwnUserId, followingId: model.OtherUserId);
     }
 
-    public IEnumerable<UserOverviewQueryModel> GetFollowers(int id)
+    public IEnumerable<UserDetailQueryModel> GetFollowers(int id)
     {
         return _repository.GetFollowers(id)
-            .Select(user => new UserOverviewQueryModel()
+            .Select(user => new UserDetailQueryModel
             {
                 Id = user.Id,
                 FullName = user.FullName,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                Email = user.Email,
+                IsAdmin = user.IsAdmin,
             });
     }
 
@@ -35,14 +37,16 @@ public class FollowService
         return _repository.CountFollowers(id);
     }
 
-    public IEnumerable<UserOverviewQueryModel> GetFollowing(int id)
+    public IEnumerable<UserDetailQueryModel> GetFollowing(int id)
     {
         return _repository.GetFollowing(id)
-            .Select(user => new UserOverviewQueryModel()
+            .Select(user => new UserDetailQueryModel()
             {
                 Id = user.Id,
                 FullName = user.FullName,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
+                Email = user.Email,
+                IsAdmin = user.IsAdmin
             });
     }
 

@@ -21,4 +21,11 @@ public class QueryGql
     {
         return service.GetAll().Select(PostGql.FromQueryModel);
     }
+
+    public PostGql? GetPost([Service] PostService service, int id)
+    {
+        var model = service.GetById(id);
+        if (model == null) return null;
+        return PostGql.FromQueryModel(model);
+    }
 }

@@ -1,0 +1,5 @@
+GraphQL fix list
+
+- Rename PostsComponent
+- Parse id to int in PostComponent
+- Combine call in HomeService

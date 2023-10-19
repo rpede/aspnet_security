@@ -18,6 +18,16 @@ public class UserGql
         return service.GetByAuthor(this.Id).Select(PostGql.FromQueryModel);
     }
 
+    public IEnumerable<UserGql> GetFollowers([Service] FollowService service)
+    {
+        return service.GetFollowers(Id).Select(FromQueryModel);
+    }
+    
+    public IEnumerable<UserGql> GetFollowing([Service] FollowService service)
+    {
+        return service.GetFollowing(Id).Select(FromQueryModel);
+    }
+
     [GraphQLIgnore]
     public static UserGql FromQueryModel(UserDetailQueryModel model)
     {

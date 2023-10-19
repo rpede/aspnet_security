@@ -343,3 +343,31 @@ Change the `Content` field on `PostGql` to a resolver function, such that the co
 needed.
 
 Notice nothing in the GraphQL API have to change, so the frontend is therefor unaffected.
+
+### Followers and Following
+
+Since our blog platform is trying to be the next big thing in social media, it is very important that our users can
+always keep that on who they follow and who follows them.
+
+Add resolver methods Followers and Following to [UserGql](api/GraphQL/Types/UserGql.cs).
+
+You can user [FollowService](service/Services/FollowService.cs) query the database, but you will have to change the
+response type of `GetFollowers` and `GetFollowing`.
+
+Update [HomeService](frontend/src/app/posts/posts.service.ts)
+and [HomeComponent](frontend/src/app/posts/home.component.ts) in frontend to use GraphQL to fetch
+data.
+See if you can do it with just one query.
+
+### Lazy Loading
+
+HomeComponent loads all data immediately.
+But what gets shown depends on the selected [segment](https://ionicframework.com/docs/api/segment).
+
+Can you change it so that it only load the data when needed?
+
+To solve the challenge you will need:
+
+- React to `(ionChange)` events on `ion-segments`
+- Extends the GraphQL API with resolver methods for counts of posts, followers and following.
+- Multiple queries in the HomeService
