@@ -60,17 +60,14 @@ export class HomeComponent implements OnInit {
   constructor(private readonly service: HomeService) { }
 
   ngOnInit(): void {
-    const user$ = this.service.getUser();
-    this.posts$ = user$.pipe(switchMap(({ id }) => this.service.getPosts(id)));
-    this.followers$ = user$.pipe(switchMap(({ id }) => this.service.getFollowers(id)));
-    this.following$ = user$.pipe(switchMap(({ id }) => this.service.getFollowing(id)));
-    this.segments$ = zip(this.posts$, this.followers$, this.following$)
-      .pipe(map(([posts, followers, following]) =>
-        [
-          { label: `Uploads (${posts.length})`, value: "uploads" },
-          { label: `Following (${following.length})`, value: "following" },
-          { label: `Followers (${followers.length})`, value: "followers" },
-        ]
-      ));
+    const data$ = this.service.getDate();
+    this.posts$ = data$.pipe(map(d => d.posts));
+    this.followers$ = data$.pipe(map(d => d.followers));
+    this.following$ = data$.pipe(map(d => d.following));
+    this.segments$ = data$.pipe(map(({posts, followers, following}) => [
+      {label: `Uploads (${posts.length})`, value: "uploads"},
+      {label: `Following (${following.length})`, value: "following"},
+      {label: `Followers (${followers.length})`, value: "followers"},
+    ]))
   }
 }

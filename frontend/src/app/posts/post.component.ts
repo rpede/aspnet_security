@@ -31,7 +31,7 @@ export class PostComponent implements OnInit {
 
   ngOnInit(): void {
     this.post$ = this.route.params.pipe(switchMap(({ id }) =>
-      this.service.getPost(id)
+      this.service.getPost(Number.parseInt(id))
     ));
   }
 }

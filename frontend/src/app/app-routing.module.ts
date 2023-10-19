@@ -30,7 +30,8 @@ const routes: Routes = [
       },
       {
         path: 'account',
-        component: AccountComponent
+        component: AccountComponent,
+        canActivate: [AuthenticatedGuard]
       },
       {
         path: 'login',
@@ -42,7 +43,8 @@ const routes: Routes = [
       },
       {
         path: 'users',
-        component: UsersComponent
+        component: UsersComponent,
+        canActivate: [AuthenticatedGuard]
       },
     ]
   }

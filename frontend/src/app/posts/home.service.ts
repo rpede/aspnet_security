@@ -1,6 +1,6 @@
-import { HttpClient } from "@angular/common/http"
-import { Injectable } from "@angular/core";
-import { switchMap } from "rxjs"
+import {HttpClient} from "@angular/common/http"
+import {Injectable} from "@angular/core";
+import {combineLatest, map, shareReplay, switchMap} from "rxjs"
 
 export interface User {
   id: number,
@@ -17,21 +17,34 @@ export interface Post {
 
 @Injectable()
 export class HomeService {
-  constructor(private readonly http: HttpClient) { }
+  constructor(private readonly http: HttpClient) {
+  }
 
-  getUser() {
+  getDate() {
+    const user$ = this.getUser().pipe(shareReplay());
+    const posts$ = user$.pipe(switchMap(({id}) => this.getPosts(id)), shareReplay());
+    const followers$ = user$.pipe(switchMap(({id}) => this.getFollowers(id)), shareReplay());
+    const following$ = user$.pipe(switchMap(({id}) => this.getFollowing(id)), shareReplay());
+    return combineLatest(posts$, followers$, following$).pipe(map(([posts, followers, following]) => ({
+      posts,
+      followers,
+      following
+    })));
+  }
+
+  private getUser() {
     return this.http.get<User>("/api/account/whoami");
   }
 
-  getFollowers(id: number) {
+  private getFollowers(id: number) {
     return this.http.get<User[]>(`/api/users/${id}/followers`);
   }
 
-  getFollowing(id: number) {
+  private getFollowing(id: number) {
     return this.http.get<User[]>(`/api/users/${id}/following`);
   }
 
-  getPosts(id: number) {
-    return this.http.get<Post[]>(`/api/posts`, { params: { author: id } })
+  private getPosts(id: number) {
+    return this.http.get<Post[]>(`/api/posts`, {params: {author: id}})
   }
 }
