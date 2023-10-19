@@ -25,6 +25,7 @@ import { AccountService } from './account/account.service';
 import { HomeService } from './posts/home.service';
 import { PostsService } from './posts/posts.service';
 import { PostService } from './posts/post.service';
+import { GraphQLModule } from './graphql.module';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { PostService } from './posts/post.service';
     IonicModule.forRoot({ mode: 'ios' }),
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    GraphQLModule
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

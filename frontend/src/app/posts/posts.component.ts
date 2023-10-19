@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { Observable } from "rxjs";
+import { Router } from "@angular/router";
+import { Observable, map } from "rxjs";
 import { Post, PostsService } from "./posts.service";
 
 @Component({

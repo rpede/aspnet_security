@@ -1,12 +1,14 @@
 # GraphQL
 
+Install the **GraphQL** plugin in Rider.
+
+## Backend
+
 Install dependency into **api** project.
 
 ```sh
 dotnet add api package HotChocolate.AspNetCore 
 ```
-
-Install the **GraphQL** plugin in Rider.
 
 Create some types:
 
@@ -43,7 +45,6 @@ public class PostGql
 {
     public int Id { get; set; }
     public int? AuthorId { get; set; }
-    public UserGql? Author { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
 }
@@ -232,6 +233,16 @@ public IEnumerable<PostGql> GetPosts([Service] PostService service)
 }
 ```
 
+And to fetch all posts.
+[QueryGql](api/GraphQL/Types/QueryGql.cs)
+
+```csharp
+public IEnumerable<PostGql> GetPosts([Service] PostService service)
+{
+    return service.GetAll().Select(PostGql.FromQueryModel);
+}
+```
+
 Try to include posts in the query
 
 ```graphql
@@ -246,10 +257,82 @@ Try to include posts in the query
             content
         }
     }
+    posts {
+        id
+        title
+    }
+}
+```
+
+## Frontend
+
+Initial setup described here is based
+on [Apollo Angular - Get Started](https://the-guild.dev/graphql/apollo-angular/docs/get-started).
+
+```sh
+cd frontend
+ng add apollo-angular
+```
+
+For URL paste in `http://localhost:4200/graphql/`
+
+Add the `/graphql` endpoint to [proxy.conf.json](frontend/src/proxy.conf.json).
+Note: Keep `/api` endpoint.
+
+```json
+{
+  "/graphql": {
+    "target": "http://localhost:5000",
+    "secure": false
+  }
+}
+```
+
+Change [PostsService](frontend/src/app/posts/posts.service.ts) to:
+
+```typescript
+interface PostResponse {
+    posts: Post[];
+}
+
+const GET_POSTS = gql`
+  query GetPosts {
+    posts {
+      id
+      authorId
+      title
+      content
+    }
+  }
+`;
+
+@Injectable()
+export class PostsService {
+    constructor(private readonly apollo: Apollo) {
+    }
+
+    getPosts() {
+        return this.apollo.query<PostResponse>({query: GET_POSTS}).pipe(map(x => x.data.posts));
+    }
 }
 ```
 
 ## Challenges
+
+### Author of posts
+
+On the page that shows all posts, it would be nice one could the the author of each.
+
+Add a resolver method to [PostGql](api/GraphQL/Types/PostGql.cs) and fill in the implementation.
+
+```csharp
+    public UserGql? GetAuthor([Service] UserService service)
+    {
+        // TODO your implementation here
+    }
+```
+
+Then update the frontend to show the author.
 
 ### Optimize heavy data field
 

@@ -16,4 +16,9 @@ public class QueryGql
         if (model == null) return null;
         return UserGql.FromQueryModel(model);
     }
+    
+    public IEnumerable<PostGql> GetPosts([Service] PostService service)
+    {
+        return service.GetAll().Select(PostGql.FromQueryModel);
+    }
 }
