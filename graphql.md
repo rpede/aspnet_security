@@ -447,7 +447,7 @@ Note: Keep `/api` endpoint.
 }
 ```
 
-Change [PostsService](frontend/src/app/posts/posts.service.ts) to:
+Change [PostsFeedService](frontend/src/app/posts/posts-feed.service.ts) to:
 
 ```typescript
 interface PostResponse {
@@ -466,7 +466,7 @@ const GET_POSTS = gql`
 `;
 
 @Injectable()
-export class PostsService {
+export class PostsFeedService {
     constructor(private readonly apollo: Apollo) {
     }
 

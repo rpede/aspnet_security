@@ -25,7 +25,7 @@ const GET_POSTS = gql`
 `;
 
 @Injectable()
-export class PostsService {
+export class PostsFeedService {
   constructor(private readonly apollo: Apollo) {
   }
 

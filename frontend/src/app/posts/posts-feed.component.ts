@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Observable, map } from "rxjs";
-import { Post, PostsService } from "./posts.service";
+import { Observable } from "rxjs";
+import { Post, PostsFeedService } from "./posts-feed.service";
 
 @Component({
     template: `
@@ -24,12 +24,12 @@ import { Post, PostsService } from "./posts.service";
       </ion-content>
   `
 })
-export class PostsComponent implements OnInit {
+export class PostsFeedComponent implements OnInit {
     posts$?: Observable<Post[]>;
 
     constructor(
         readonly router: Router,
-        private readonly service: PostsService,
+        private readonly service: PostsFeedService,
     ) { }
 
     ngOnInit(): void {
