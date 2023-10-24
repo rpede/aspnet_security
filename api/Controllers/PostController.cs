@@ -5,7 +5,6 @@ using service.Services;
 
 namespace api.Controllers;
 
-[RequireAuthentication]
 [ApiController]
 public class PostController : ControllerBase
 {

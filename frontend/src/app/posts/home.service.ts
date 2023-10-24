@@ -1,7 +1,6 @@
-import {HttpClient} from "@angular/common/http"
 import {Injectable} from "@angular/core";
 import {Apollo, gql} from "apollo-angular";
-import {map, shareReplay, switchMap, zip} from "rxjs"
+import {map} from "rxjs"
 
 export interface User {
   id: number,

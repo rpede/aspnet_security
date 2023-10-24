@@ -4,7 +4,8 @@ import {firstValueFrom} from "rxjs";
 import {ToastController, ToastOptions} from "@ionic/angular";
 import {TokenService} from "src/services/token.service";
 import {Router} from "@angular/router";
-import {AccountService, Credentials} from "./account.service";
+import {AccountService} from "./account.service";
+import { CredentialsInput } from "./account.models";
 
 @Component({
   template: `
@@ -73,7 +74,7 @@ export class LoginComponent {
 
   async submit() {
     if (this.form.invalid) return;
-    const result = await firstValueFrom(this.service.login(this.form.value as Credentials));
+    const result = await firstValueFrom(this.service.login(this.form.value as CredentialsInput));
 
     let msgOpt: ToastOptions;
     switch (result?.__typename) {

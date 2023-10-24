@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {PreloadAllModules, RouterModule, Routes} from '@angular/router';
 import {TabsComponent} from './tabs.component';
 import {HomeComponent} from './posts/home.component';
-import {PostsComponent} from './posts/posts.component';
+import {PostsFeedComponent} from './posts/posts-feed.component';
 import {PostComponent} from './posts/post.component';
 import {AccountComponent} from './account/account.component';
 import {LoginComponent} from './account/login.component';
@@ -22,7 +22,7 @@ const routes: Routes = [
       },
       {
         path: 'posts',
-        component: PostsComponent
+        component: PostsFeedComponent
       },
       {
         path: 'posts/:id',
@@ -30,7 +30,8 @@ const routes: Routes = [
       },
       {
         path: 'account',
-        component: AccountComponent
+        component: AccountComponent,
+        canActivate: [AuthenticatedGuard]
       },
       {
         path: 'login',
@@ -42,7 +43,8 @@ const routes: Routes = [
       },
       {
         path: 'users',
-        component: UsersComponent
+        component: UsersComponent,
+        canActivate: [AuthenticatedGuard]
       },
     ]
   }

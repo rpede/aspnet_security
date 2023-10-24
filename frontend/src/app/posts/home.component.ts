@@ -1,6 +1,6 @@
-import {Component, OnInit} from "@angular/core";
-import {Post, User, HomeService} from './home.service';
-import {Observable, map, shareReplay, switchMap, zip} from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { Post, User, HomeService } from './home.service';
+import { Observable, map } from "rxjs";
 
 @Component({
   template: `

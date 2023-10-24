@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using api.Filters;
 using api.TransferModels;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ public class AccountController : ControllerBase
     public IActionResult Login([FromBody] LoginCommandModel model)
     {
         var user = _service.Authenticate(model);
+        if (user == null) return Unauthorized();
         var token = _jwtService.IssueToken(SessionData.FromUser(user!));
         return Ok(new { token });
     }
