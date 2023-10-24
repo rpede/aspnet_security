@@ -16,14 +16,14 @@ import { HeaderComponent } from './header.component';
 import { RegisterComponent } from './account/register.component';
 import { LoginComponent } from './account/login.component';
 import { AccountComponent } from './account/account.component';
-import { PostsComponent } from './posts/posts.component';
+import { PostsFeedComponent } from './posts/posts-feed.component';
 import { HomeComponent } from './posts/home.component';
 import { PostComponent } from './posts/post.component';
 import { UsersComponent } from './admin/users.component';
 import { AuthenticatedGuard } from './guards';
 import { AccountService } from './account/account.service';
 import { HomeService } from './posts/home.service';
-import { PostsService } from './posts/posts.service';
+import { PostsFeedService } from './posts/posts-feed.service';
 import { PostService } from './posts/post.service';
 
 @NgModule({
@@ -32,7 +32,7 @@ import { PostService } from './posts/post.service';
     HeaderComponent,
     TabsComponent,
     HomeComponent,
-    PostsComponent,
+    PostsFeedComponent,
     PostComponent,
     UsersComponent,
     AccountComponent,
@@ -54,7 +54,7 @@ import { PostService } from './posts/post.service';
     AuthenticatedGuard,
     AccountService,
     HomeService,
-    PostsService,
+    PostsFeedService,
     PostService,
   ],
   bootstrap: [AppComponent],

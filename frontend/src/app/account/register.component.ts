@@ -1,9 +1,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { ToastController } from "@ionic/angular";
-import { Router } from "@angular/router";
 import { CustomValidators } from "../custom-validators";
 import { AccountService, Registration } from "./account.service";
 

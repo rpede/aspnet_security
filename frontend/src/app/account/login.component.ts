@@ -1,6 +1,5 @@
 import { Component } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { HttpClient } from "@angular/common/http";
 import { firstValueFrom } from "rxjs";
 import { ToastController } from "@ionic/angular";
 import { TokenService } from "src/services/token.service";

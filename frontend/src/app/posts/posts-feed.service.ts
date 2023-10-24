@@ -9,7 +9,7 @@ export interface Post {
 }
 
 @Injectable()
-export class PostsService {
+export class PostsFeedService {
     constructor(private readonly http: HttpClient) { }
 
     getPosts() {
