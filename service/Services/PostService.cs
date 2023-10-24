@@ -1,6 +1,7 @@
 using infrastructure.DataModels;
 using infrastructure.Repositories;
 using service.Models.Command;
+using service.Models.Query;
 
 namespace service.Services;
 
@@ -41,5 +42,30 @@ public class PostService
     public int Count()
     {
         return _repository.Count();
+    }
+    
+    public PostDetailQueryModel? GetDetails(int id)
+    {
+        var post = _repository.GetById(id);
+        if (post == null) return null;
+
+        return new PostDetailQueryModel()
+        {
+            Id = post.Id,
+            AuthorId = post.AuthorId,
+            Title = post.Title,
+            Content = post.Content
+        };
+    }
+
+    public IEnumerable<PostOverviewQueryModel> GetOverview()
+    {
+        return _repository.GetAll().Select(post => new PostOverviewQueryModel()
+        {
+            Id = post.Id,
+            AuthorId = post.AuthorId,
+            Title = post.Title,
+            
+        });
     }
 }

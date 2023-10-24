@@ -1,3 +1,5 @@
+using System.Collections;
+using infrastructure.DataModels;
 using infrastructure.Repositories;
 using service.Models.Command;
 using service.Models.Query;
@@ -6,31 +8,45 @@ namespace service.Services;
 
 public class UserService
 {
-    private readonly UserRepository _userRepository;
+    private readonly UserRepository _repository;
 
-    public UserService(UserRepository userRepository)
+    public UserService(UserRepository repository)
     {
-        _userRepository = userRepository;
+        _repository = repository;
     }
 
-    public UserOverviewQueryModel Create(CreateUserCommandModel model)
+    public User Create(CreateUserCommandModel model)
     {
-        var user = _userRepository.Create(
+        return _repository.Create(
             fullName: model.FullName,
             email: model.Email,
             avatarUrl: model.AvatarUrl
         );
-        return new UserOverviewQueryModel()
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            AvatarUrl = user.AvatarUrl,
-        };
+    }
+
+    public User? GetById(int id)
+    {
+        return _repository.GetById(id);
+    }
+    
+    public IEnumerable<User> GetByIds(IEnumerable<int> ids)
+    {
+        return _repository.GetByIds(ids);
+    }
+
+    public IEnumerable<User> GetAll()
+    {
+        return _repository.GetAll();
+    }
+    
+    public int Count()
+    {
+        return _repository.Count();
     }
 
     public UserDetailQueryModel? GetDetails(int id)
     {
-        var user = _userRepository.GetById(id);
+        var user = _repository.GetById(id);
         if (user == null) return null;
 
         return new UserDetailQueryModel
@@ -45,7 +61,7 @@ public class UserService
 
     public IEnumerable<UserOverviewQueryModel> GetOverview()
     {
-        return _userRepository.GetAll().Select(user => new UserOverviewQueryModel()
+        return _repository.GetAll().Select(user => new UserOverviewQueryModel()
         {
             Id = user.Id,
             FullName = user.FullName,
