@@ -314,11 +314,11 @@ Query with:
 
 ```graphql
 query GetPost($id: Int!) {
-  post(id: $id) {
-    id
-    title
-    content
-  }
+    post(id: $id) {
+        id
+        title
+        content
+    }
 }
 ```
 
@@ -417,15 +417,15 @@ In GraphQL IDE:
 
 ```graphql
 mutation Login($input: CredentialsInput!){
-  login(input: $input) {
-    __typename
-    ... on TokenResponse {
-      token
+    login(input: $input) {
+        __typename
+        ... on TokenResponse {
+            token
+        }
+        ...on InvalidCredentials {
+            message
+        }
     }
-    ...on InvalidCredentials {
-      message
-    }
-  }
 }
 ```
 
@@ -477,14 +477,14 @@ import {Apollo, gql} from "apollo-angular";
 import {map} from "rxjs";
 
 export interface Post {
-  id: number;
-  authorId?: number;
-  title: string;
-  content: string;
+    id: number;
+    authorId?: number;
+    title: string;
+    content: string;
 }
 
 interface PostResponse {
-  posts: Post[];
+    posts: Post[];
 }
 
 const GET_POSTS = gql`
@@ -500,12 +500,12 @@ const GET_POSTS = gql`
 
 @Injectable()
 export class PostsFeedService {
-  constructor(private readonly apollo: Apollo) {
-  }
+    constructor(private readonly apollo: Apollo) {
+    }
 
-  getPosts() {
-    return this.apollo.query<PostResponse>({query: GET_POSTS}).pipe(map(x => x.data.posts));
-  }
+    getPosts() {
+        return this.apollo.query<PostResponse>({query: GET_POSTS}).pipe(map(x => x.data.posts));
+    }
 }
 ```
 
@@ -567,7 +567,7 @@ Do the same for register.
 Remember there is no register mutation in the backend yet, so you will also have to create
 it.
 
-### 7. Data loader
+### 5. Data loader
 
 If you make the following GraphQL query:
 
