@@ -10,31 +10,32 @@ Authorization: Bearer <token>
 ```
 
 A JWT has a payload part containing information that can be used to make decisions on whether to authorize a request.
-It also has a signature protecting from the payload from tampering.
+It also has a signature protecting the payload from tampering.
 
-A signature is basically just a hash over the payload and a secret.
+A signature is basically just a hash over the payload plus a secret.
 Only server knows the secret, meaning that only it can sign and verify the signature.
 
 **Note:** payload of a JWT is just a base64 encoded JSON object.
 Everybody can decode the payload.
 It is NOT encrypted.
 Only protected from tampering.
+Can be used until it expires if stolen.
 
-Since JWT can contain information about users, we don't need any server side state to identify the user.
+Since JWT can contain ID of user, we don't need a server side cache as with session cookie.
 
-Unlike cookies - bearer tokens are not send automatically by the web browser to the server.
-Client side JavaScript is need to send the bearer token with requests.
+Unlike cookies, bearer tokens are not send automatically by the web browser to the server.
+Client side JavaScript is needed to include the bearer token with requests.
 
-The main advantage of bearer token with JWT is that we use them across origins.
+The main advantage of bearer token with JWT is that we can use them across origins.
 
-As an example a company could centralize authentication on a server at `auth.example.com`.
+As an example a company could centralized authentication on a server at `auth.example.com`.
 Employee training is available at `moodle.example.com`.
 Payroll system is only available on internal network at `payroll.example.local`.
 
 ## Server implementation
 
 First we need to add a package for working with JWT.
-Even though JWT are pretty simple in concept, its nice to delegate
+Even though JWT is pretty simple in concept, its nice to delegate
 encoding/decoding, signing, verification, validity period etc. to a library.
 
 ```sh
@@ -66,7 +67,7 @@ public class JwtService
 {
     private readonly JwtOptions _options;
 
-    public JwtHelper(JwtOptions options)
+    public JwtService(JwtOptions options)
     {
         _options = options;
     }
@@ -84,54 +85,56 @@ public class JwtService
 ```
 
 Notice **JwtService** takes the options as a constructor parameter.
-The options should be loaded from configuration and we want to be able to dependency inject the JWT helper where needed.
+The options should be loaded from configuration file.
+We also want to be able to dependency inject the JwtService where needed.
 
 [Dependency injection](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-8.0)
-is configured in [Program.cs](api/Program.cs).
-The problem is that when adding too much dependency configuration directly to the file, it becomes rather crowded and
-difficult to navigate.
+is setup in [Program.cs](api/Program.cs).
+The problem is that when adding too much setup directly to the file, it becomes
+rather crowded and difficult to navigate.
 
-A common fix is to bundle up the configuration details in extensions methods and just reference it in **Program.cs**.
-In fact this pattern is already being use to configure the database.
+A common fix is to bundle up the configuration details in extensions methods and
+just invoke it in **Program.cs**.
+In fact this pattern is already being used to configure the database.
 
 See `AddSqLiteDataSource()`
 in [SQLiteServiceCollectionExtensions.cs](/home/owrflow/code/aspnet_security_prep/api/SQLiteServiceCollectionExtensions.cs).
 
-We need something similar for our JwtHelper.
+We need something similar for our JwtService.
 
-Lets rename the file to just **ServiceCollectionExtensions.cs**.
-Now add the setup for JwtOptions and JwtHelper:
+Lets rename the file to just **ServiceCollectionExtensions.cs** and rename the
+class to match.
+Now add the setup for JwtOptions and JwtService:
 
 ```csharp
-public static void AddJwtHelper(this IServiceCollection services)
+public static void AddJwtService(this IServiceCollection services)
 {
     services.AddSingleton<JwtOptions>(services =>
     {
         var configuration = services.GetRequiredService<IConfiguration>();
         var options = configuration.GetRequiredSection("JWT").Get<JwtOptions>()!;
-        
+    
         // If address isn't set in the config then we are likely running in development mode.
         // We will use the address of the server as *issuer* for JWT.
         if (string.IsNullOrEmpty(options?.Address))
         {
             var server = services.GetRequiredService<IServer>();
-            var addresses = server.Features.Get<IServerAddressesFeature>().Addresses;
-            options.Address = addresses.First();
+            var addresses = server.Features.Get<IServerAddressesFeature>()?.Addresses;
+            options.Address = addresses?.FirstOrDefault();
         }
 
         return options;
     });
-    services.AddSingleton<JwtHelper>();
+    services.AddSingleton<JwtService>();
 }
 ```
 
-Now we can just call the method in [Program.cs](api/Program.cs).
+Now we can just call the method in [Program.cs](api/Program.cs) right after the
+singleton services are added.
 
 ```csharp
-builder.Services.AddJwtHelper();
+builder.Services.AddJwtService();
 ```
-
-Should be added right after adding singletons for repositories and services.
 
 The options for JWT handling can be set in `appsettings.json` or `appsettings.Development.json`.
 The config file `appsettings.Development.json` is only used on you development machine, not when the application is
@@ -150,10 +153,11 @@ So got ahead and add settings to the end of [appsettings.Development.json](api/a
 
 The secret will be used to sign and verify JWTs.
 
-**Important** Never ever store secrets for production in GIT.
-Otherwise your boss will have every right to fire you on the spot, and you will be a disappointment to your parents!
+**Important** Never ever store secrets for production in GIT!
+Otherwise your boss will have every right to fire you. And you will be a
+disappointment to your family!
 
-You can generate a new secret with:
+Btw you can generate a new secret with:
 
 ```sh
 openssl rand -base64 64
@@ -185,20 +189,21 @@ public string IssueToken(SessionData data)
 }
 ```
 
-Here `Issuer` and `Audience` is the same because we are going to both issue the token and consumed (audience) from the same
-system.
+Here `Issuer` and `Audience` is the same, because we are going to both issue the
+token and consumed (audience) from the same system.
 
-Tokens can be issued by one system and consumed (audience) by another.
-Like when you log into other services with your Google or Facebook account.
+Tokens can be issued by one system and used by another (audience).
+Like when you login to a service with your Google or Facebook account.
 
 `Expires` is when the token is valid until.
 
-Claims are the payload of the token.
+`Claims` are the payload of the token.
 We can store whatever information we want in claims.
 But we should stay away from storing sensitive information in it, since it isn't encrypted.
 
-Next we need to validate the token and extract the payload.
-(Right now the payload is just the user ID).
+Right now the payload is just the user ID and role, but it could be other info.
+
+We also need to be able to validate the token and extract the payload again.
 
 ```csharp
 public SessionData ValidateAndDecodeToken(string token)
@@ -227,14 +232,41 @@ public SessionData ValidateAndDecodeToken(string token)
 
 It should only accepts tokens signed by the one algorithm our applications is using.
 
-The JWT specification allows signing algorithm to be "none" meaning no signature is used.
-Attempting to use JWTs without signatures is a really bad idea and therefore we make you we wont accept tokens without.
+The JWT specification allow signing algorithm to be "none", meaning no signature is used.
+Attempting to use JWTs without signatures is a really bad idea.
+So therefore we make sure we will not accept tokens without it.
 
-## Authorization header
+### Login
 
-Remember that bearer tokens gets added to requests HTTP requests in a header.
+Add **JwtService** to constructor in [AccountController](api/Controllers/AccountController.cs) and change `login()` to:
+
+```typescript
+[HttpPost]
+[Route("/api/account/login")]
+public ResponseDto Login([FromBody] LoginDto dto)
+{
+    var user = _service.Authenticate(dto.Email, dto.Password);
+    var token = _jwtService.IssueToken(SessionData.FromUser(user!));
+    return new ResponseDto
+    {
+        MessageToClient = "Successfully authenticated",
+        ResponseData = new { token },
+    };
+}
+```
+
+### Authorization header
+
+Remember that bearer tokens gets added to the header of HTTP requests.
+
+Header looks like this:
+
+```txt
+Authorization: Bearer <token>
+```
 
 We need some code to parse such header.
+Then token part so we can validate and decode it using the service we just implemented.
 
 Add to `api/Middleware/JwtBearerHandler.cs`
 
@@ -280,23 +312,16 @@ public class JwtBearerHandler
 
 We also need to hook it up in [Program.cs](api/Program.cs).
 Add `app.UseMiddleware<JwtBearerHandler>()` right above `app.UseMiddleware<GlobalExceptionHandler>()`.
-The other in which middleware is added determines the in which they are executed.
-Therefore the `GlobalExceptionHandler` middleware should be the last.
 
-Header looks like this:
+The order in which middleware is added determines the order they are executed.
+Therefore the `GlobalExceptionHandler` middleware should come after.
 
-```txt
-Authorization: Bearer <token>
-```
+Last we associate the payload/data from the token with the HttpContext for the
+current HTTP request in our app.
+So we can get the data again anywhere in filters or actions.
 
-So we grab the token part then validate and decode it using the service we just implemented.
-
-Last we associate the payload/data from the token with the context for the current HTTP request in our app.
-That way we can get the data again anywhere in filters or actions
-using **HttpContextExtensions**.
-
-Speaking of [HttpContextExtensions](api/HttpContextExtensions.cs).
-We need to implement it in a way that works without cookie sessions.
+We need to implement [HttpContextExtensions](api/HttpContextExtensions.cs) in a
+way that works without cookie based session.
 
 ```csharp
 public static class HttpContextExtensions
@@ -313,15 +338,14 @@ public static class HttpContextExtensions
 }
 ```
 
-`httpContext.Items` is destroyed after current request have been completed.
-No server side storage this time.
+`httpContext.Items` exists only for the duration of the current request.
+It is destroyed afterwards.
 
-
-## Swagger + JWT
+### Swagger + JWT
 
 To get swagger working with bearer tokens we need to add a bit of configuration.
 
-In **HttpContextExtensions** add:
+In **ServiceCollectionExtensions** add:
 
 ```csharp
 public static void AddSwaggerGenWithBearerJWT(this IServiceCollection services)
@@ -375,7 +399,7 @@ Add a simple service to deal with storing the token.
 import { Injectable } from "@angular/core";
 
 @Injectable()
-export class AuthService {
+export class TokenService {
   private readonly storage: Storage = window.sessionStorage;
 
   setToken(token: string) {
@@ -385,8 +409,15 @@ export class AuthService {
   getToken() {
     return this.storage.getItem("token");
   }
+
+  clearToken() {
+    this.storage.removeItem("token");
+  }
 }
 ```
+
+Remember to add the service to `providers` array in
+[AppModule](frontend/src/app/app.module.ts).
 
 We got two options for storing
 it; [sessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage)
@@ -396,13 +427,15 @@ Read about them and maybe experiment with each so you know the difference.
 
 ### Login
 
-Change to `submit()` in [LoginComponent](frontend/src/app/login.component.ts) to:
+Add TokenService to the constructor in
+[LoginComponent](frontend/src/app/login.component.ts) and change to `submit()`
+to:
 
 ```typescript
 async submit() {
     const url = '/api/account/login';
     var response = await firstValueFrom(this.http.post<ResponseDto<{token: string}>>(url, this.form.value));
-    this.auth.setToken(response.responseData!.token);
+    this.tokenService.setToken(response.responseData!.token);
 
     (await this.toast.create({
         message: response.messageToClient,
@@ -412,17 +445,18 @@ async submit() {
 }
 ```
 
-It just calls AuthService to set the token we get after successful login.
+The difference is just calls TokenService to set the token we get after
+successful login.
 
 ### Add token to header
 
-We also need another interceptor to add the authorization header.
-So add following to `frontend/src/interceptors/auth-http-interceptor.ts`
+We need another interceptor to add the authorization header.
+So add the following to `frontend/src/interceptors/auth-http-interceptor.ts`
 
 ```typescript
 @Injectable()
 export class AuthHttpInterceptor implements HttpInterceptor {
-    constructor(private readonly service: AuthService) {}
+    constructor(private readonly service: TokenService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const token = this.service.getToken();
@@ -445,6 +479,34 @@ Remember to add it to [AppModule](frontend/src/app/app.module.ts) just like the 
 
 It adds a token to Authorization header if we have one.
 
-To protect the token we only added to request to our own system.
-Either the url begins the origin for which the document was loaded, or we have a relative url in which case it doesn't
-start with http:// or https://
+To protect the token. We only added to request to our own system.
+Either the url begins the origin for which the document was loaded, or we have a
+relative url (doesn't start with *http://* or *https://*).
+
+### Logout
+
+Now add a logout button to a component in your frontend.
+
+```html
+<ion-button (click)="logout()">Logout</ion-button>
+```
+
+```typescript
+  async logout() {
+    this.tokenService.clearToken();
+
+    (await this.toastController.create({
+      message: 'Successfully logged out',
+      duration: 5000,
+      color: 'success',
+    })).present()
+  }
+```
+
+## Wrap up
+
+Try it in action!
+
+Verify that login is needed before `/users` can be accessed.
+
+Commit to a different branch so you can compare with the other approach.
