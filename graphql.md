@@ -23,9 +23,9 @@ public class QueryGql
         new UserGql()
         {
             Id = 1,
-            FullName = "Joe Doe",
-            Email = "test@example.com",
-            AvatarUrl = "https://robohash.org/test@example.com",
+            FullName = "Alice Smith",
+            Email = "alice@example.com",
+            AvatarUrl = "https://robohash.org/alice@example.com",
             IsAdmin = true,
         };
 }
@@ -56,9 +56,10 @@ The **Query** class is the root of our GraphQL API.
 Everything in our API is exposed through it.
 
 `[GraphQLName("something")` allow us to specify the name for a field or class in GraphQL API.
-I use **Gql** postfix for all GraphQL types tell apart what is exposed.
+I use **Gql** postfix for all GraphQL, to types tell apart what gets exposed.
 
-Now we just need to hook the **Query** class up to ASP.NET and we can begin to play around with our new GraphQL API.
+Now we just need to hook the **QueryGql** class up to library.
+Then we can begin to play around with our new GraphQL API.
 
 Open [Program.cs](api/Program.cs) and add;
 
@@ -70,16 +71,16 @@ builder.Services.AddGraphQLServer().AddQueryType<QueryGql>();
 app.MapGraphQL();
 ```
 
-Hurray, you created your first GraphQL API.
+Hurray, you created your first GraphQL API ! 🥳
 
-The library we are using gives us a really cool UI we can use to play around with the API.
+The library we are using gives us a really cool UI, that we can use to play around with the API.
 
-It is kinda similar to Swagger in that it is build into our web server.
-But it is much nicer interface, more like and Postman.
+It is kinda similar to Swagger, in that it is build into our web server.
+But it has a much nicer interface, more like and Postman.
 
 I will refer to it as GraphQL IDE.
 
-Open [http://localhost:5000/graphql/](http://localhost:5000/graphql/)
+Run the solution. Open [http://localhost:5000/graphql/](http://localhost:5000/graphql/)
 
 Click *Create Document* and type:
 
@@ -92,6 +93,10 @@ Click *Create Document* and type:
     }
 }
 ```
+
+Pretty annoying that it opens swagger each time we run the project.
+We can easily fix it by changing `"launchUrl"` to `"launchUrl": "graphql"`
+in [launchSettings.json](https://github.com/rpede/aspnet_security/blob/54ff1b54e1f33caaefde4ee6a1c4ad482bf8f666/api/Properties/launchSettings.json).
 
 ### Query with dynamic data
 
@@ -112,7 +117,9 @@ public IEnumerable<PostGql> GetPosts([Service] PostService service)
 }
 ```
 
-We also need a way to convert between the Post data-model and PostGql.
+Notice that we use dependency injection to get a reference to our service class.
+
+Before it works we need a way to convert between the Post data-model and PostGql.
 Lets add it [PostGql](api/GraphQL/Types/PostGql.cs):
 
 ```csharp
@@ -129,6 +136,8 @@ public static PostGql FromModel(Post model)
 }
 ```
 
+One could make a specialized class to convert back and forth instead.
+
 Try it out in GraphQL IDE;
 
 ```graphql
@@ -144,7 +153,8 @@ Try it out in GraphQL IDE;
 
 ### Using Session
 
-To implement `GetMe()` top-level resolver with dynamic data, we need to information from session.
+To implement `GetMe()` top-level resolver with dynamic data, we need to get information from session.
+But lets try it first with a hardcoded id.
 
 Add a method to convert query model to GraphQL model in [UserGql](api/GraphQL/Types/UserGql.cs)
 
@@ -237,6 +247,9 @@ public UserGql? GetMe(
 }
 ```
 
+We can inject global state object (if it exists) from a key.
+**GlobalStateKeys.Session** is just a constant, so avoid potentially mistyping the key.
+
 To test it out. Login with swagger [http://localhost:5000/swagger/index.html](http://localhost:5000/swagger/index.html)
 
 ```json
@@ -255,7 +268,7 @@ In the bottom of the page add a HTTP header with the JWT like this:
 |------|-------|
 | Authorization | Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1IjoxLCJhIjp0cnVlLCJuYmYiOjE2OTc3MTA1OTgsImV4cCI6MTY5NzcyNDk5OCwiaWF0IjoxNjk3NzEwNTk4LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAifQ.bcJpc1kRB5Baav-0shgncM-GoZ7BTDgTphGOhBHQZIbtvaM9w5H3YXNf9C8AVPbQZBTPD8g11ICe85MPdFoUog |
 
-Execute the query
+Execute a query to see information about the user you've logged in as.
 
 ```graphql
 {
@@ -278,7 +291,7 @@ public IEnumerable<PostGql> GetPosts([Service] PostService service)
 }
 ```
 
-Try to include posts in the query
+Try this, to include posts in the query:
 
 ```graphql
 {
@@ -297,7 +310,7 @@ Try to include posts in the query
 
 ### Query inputs
 
-It is also possible to provide input to resolver functions.
+It is also possible to provide parameters to resolver functions.
 
 Add to [QueryGql](api/GraphQL/Types/QueryGql.cs);
 
@@ -324,7 +337,7 @@ query GetPost($id: Int!) {
 
 `$id` is called variable in GraphQL, but it serves the same purpose as parameters in your Dapper+SQL.
 
-You can set a value for in the the bottom pane of GraphQL IDE.
+You can set a value for it in the the bottom pane of GraphQL IDE.
 
 ```json
 {
@@ -332,7 +345,7 @@ You can set a value for in the the bottom pane of GraphQL IDE.
 }
 ```
 
-Note that GraphQL variables is just a JSON document.
+Note that GraphQL variables is defined by a JSON document.
 
 ### Mutation and union types
 
@@ -371,9 +384,9 @@ public class InvalidCredentialsGql : ILoginResultGql
 ```
 
 We will be using a feature called Union type.
-It basically means that the result from login mutation can be TokenResponse or InvalidCredentials.
+It basically means that the result from login mutation can be either **TokenResponse** or **InvalidCredentials**.
 
-Now for the mutation:
+Now for the mutation itself:
 
 ```csharp
 // api/GraphQL/Types/MutationGql.cs
@@ -396,8 +409,8 @@ public class MutationGql
 Notice how the mutation class looks a lot like the query class.
 The only difference is just the convention that only mutations make changes.
 
-Also notice that ILoginResultGql which is just an interface.
-Because the concrete return types has to be part of the schema, we need to tell the framework about them.
+Also notice that ILoginResultGql is is just an interface.
+Since the concrete return types has to be part of the schema, we need to tell the framework about them.
 
 In [Program.cs](api/Program.cs), change to:
 
@@ -411,7 +424,7 @@ builder.Services
     .AddHttpRequestInterceptor<HttpRequestInterceptor>();
 ```
 
-Note that we just keep chaining calls to `AddGraphQLServer()` for all the types it needs to know about to build our API.
+Notice that we just keep chaining calls to `AddGraphQLServer()` for all the types it needs to know about to build our API.
 
 In GraphQL IDE:
 
@@ -542,6 +555,7 @@ Change the `Content` field on `PostGql` to a resolver function, such that the co
 needed.
 
 Notice nothing in the GraphQL API have to change, so the frontend is therefor unaffected.
+It means that we can fix performance bottlenecks along the way, without changes to the client.
 
 ### 3. Followers
 
@@ -551,8 +565,9 @@ always keep track of who they follow and who is following them.
 Add resolver methods for **Followers** and **Following** to [UserGql](api/GraphQL/Types/UserGql.cs).
 
 You can use [FollowService](service/Services/FollowService.cs) to query the database.
-But you will need change the response type of `GetFollowers` and `GetFollowing` to the data-model, then convert to
-UserGql in the resolver methods.
+But you will need to change the response type of `GetFollowers` and `GetFollowing` to
+the [User](https://github.com/rpede/aspnet_security/blob/dcc5fd5839f21dc00e47ff2df2bb2de084b67895/infrastructure/DataModels/User.cs),
+then convert to UserGql in the resolver methods.
 
 Update [HomeService](frontend/src/app/posts/home.service.ts)
 and [HomeComponent](frontend/src/app/posts/home.component.ts) in frontend to use GraphQL to fetch data.
