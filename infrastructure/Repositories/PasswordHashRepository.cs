@@ -1,13 +1,14 @@
 using Dapper;
 using infrastructure.DataModels;
+using infrastructure.DataSources;
 
 namespace infrastructure.Repositories;
 
 public class PasswordHashRepository
 {
-    private readonly SQLiteDataSource _dataSource;
+    private readonly IDataSource _dataSource;
 
-    public PasswordHashRepository(SQLiteDataSource dataSource)
+    public PasswordHashRepository(IDataSource dataSource)
     {
         _dataSource = dataSource;
     }

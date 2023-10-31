@@ -1,5 +1,3 @@
-PRAGMA foreign_keys = ON;
-
 DROP TABLE IF EXISTS followers;
 DROP TABLE IF EXISTS password_hash;
 DROP TABLE IF EXISTS posts;
@@ -7,7 +5,7 @@ DROP TABLE IF EXISTS users;
 
 create table users
 (
-    id         integer primary key autoincrement,
+    id         integer primary key Generated Always as Identity,
     full_name  VARCHAR(50)  NOT NULL,
     email      VARCHAR(50)  NOT NULL UNIQUE,
     avatar_url VARCHAR(100) null,
@@ -68,7 +66,7 @@ VALUES ((SELECT id FROM users WHERE email = 'test@example.com'),
 
 create table posts
 (
-    id        integer primary key autoincrement,
+    id         integer primary key Generated Always as Identity,
     author_id integer      NOT NULL,
     title     VARCHAR(150) NOT NULL,
     content   TEXT         NOT NULL,

@@ -7,7 +7,7 @@ using service.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSqLiteDataSource();
+builder.Services.AddDataSource();
 
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<PasswordHashRepository>();

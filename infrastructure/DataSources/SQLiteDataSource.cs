@@ -1,9 +1,9 @@
 using System.Data;
 using Microsoft.Data.Sqlite;
 
-namespace infrastructure;
+namespace infrastructure.DataSources;
 
-public class SQLiteDataSource
+public class SQLiteDataSource : IDataSource
 {
     public required string ConnectionString { init; get; }
 

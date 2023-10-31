@@ -1,13 +1,14 @@
 using Dapper;
 using infrastructure.DataModels;
+using infrastructure.DataSources;
 
 namespace infrastructure.Repositories;
 
 public class FollowRepository
 {
-    private readonly SQLiteDataSource _dataSource;
+    private readonly IDataSource _dataSource;
 
-    public FollowRepository(SQLiteDataSource dataSource)
+    public FollowRepository(IDataSource dataSource)
     {
         _dataSource = dataSource;
     }

@@ -1,14 +1,15 @@
 using System.Collections;
 using Dapper;
 using infrastructure.DataModels;
+using infrastructure.DataSources;
 
 namespace infrastructure.Repositories;
 
 public class PostRepository
 {
-    private readonly SQLiteDataSource _dataSource;
+    private readonly IDataSource _dataSource;
 
-    public PostRepository(SQLiteDataSource dataSource)
+    public PostRepository(IDataSource dataSource)
     {
         _dataSource = dataSource;
     }

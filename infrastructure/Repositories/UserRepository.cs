@@ -1,13 +1,14 @@
 using Dapper;
 using infrastructure.DataModels;
+using infrastructure.DataSources;
 
 namespace infrastructure.Repositories;
 
 public class UserRepository
 {
-    private readonly SQLiteDataSource _dataSource;
+    private readonly IDataSource _dataSource;
 
-    public UserRepository(SQLiteDataSource dataSource)
+    public UserRepository(IDataSource dataSource)
     {
         _dataSource = dataSource;
     }
