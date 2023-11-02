@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS users;
 
 create table users
 (
-    id         integer primary key Generated Always as Identity,
+    id         integer primary key autoincrement,
     full_name  VARCHAR(50)  NOT NULL,
     email      VARCHAR(50)  NOT NULL UNIQUE,
     avatar_url VARCHAR(100) null,
@@ -66,7 +66,7 @@ VALUES ((SELECT id FROM users WHERE email = 'test@example.com'),
 
 create table posts
 (
-    id         integer primary key Generated Always as Identity,
+    id         integer primary key autoincrement,
     author_id integer      NOT NULL,
     title     VARCHAR(150) NOT NULL,
     content   TEXT         NOT NULL,
