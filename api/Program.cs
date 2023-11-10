@@ -1,10 +1,19 @@
 using api;
 using api.Middleware;
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using infrastructure.Repositories;
 using service;
 using service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// if (builder.Environment.IsProduction())
+// {
+//     builder.Configuration.AddAzureKeyVault(
+//         new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
+//         new DefaultAzureCredential());
+// }
 
 // Add services to the container.
 builder.Services.AddDataSource();
@@ -17,6 +26,7 @@ builder.Services.AddSingleton<PostRepository>();
 builder.Services.AddSingleton<PostService>();
 builder.Services.AddSingleton<FollowRepository>();
 builder.Services.AddSingleton<FollowService>();
+builder.Services.AddAvatarBlobService();
 builder.Services.AddJwtService();
 builder.Services.AddSwaggerGenWithBearerJWT();
 
@@ -28,6 +38,7 @@ var frontEndRelativePath = "./../frontend/www";
 builder.Services.AddSpaStaticFiles(conf => conf.RootPath = frontEndRelativePath);
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -36,6 +47,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSecurityHeaders();
+
+var frontendOrigin = app.Services.GetService<IConfiguration>()!["FrontendOrigin"];
+app.UseCors(policy =>
+    policy
+        .SetIsOriginAllowed(origin => origin == frontendOrigin)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+);
 
 app.UseSpaStaticFiles();
 app.UseSpa(conf => { conf.Options.SourcePath = frontEndRelativePath; });

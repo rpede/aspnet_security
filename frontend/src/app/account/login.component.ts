@@ -40,7 +40,7 @@ import { AccountService, Credentials } from "./account.service";
 
               </ion-list>
 
-              <ion-button id="btn-submit" [disabled]="form.invalid" (click)="submit()">Submit</ion-button>
+              <ion-button id="btn-submit" type="submit" [disabled]="form.invalid" (click)="submit()">Submit</ion-button>
               <ion-button id="btn-register" color="secondary" fill="outline" [routerLink]="'/register'">Register
               </ion-button>
           </form>

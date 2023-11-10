@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using infrastructure.DataSources;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -96,5 +98,16 @@ public static class ServiceCollectionExtensions
                 });
             }
         );
+    }
+
+    public static void AddAvatarBlobService(this IServiceCollection services)
+    {
+        services.AddSingleton<BlobService>(provider =>
+        {
+            var connectionString = provider.GetService<IConfiguration>()!
+                .GetConnectionString("AvatarStorage");
+            var client = new BlobServiceClient(connectionString);
+            return new BlobService(client);
+        });
     }
 }

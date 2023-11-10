@@ -25,6 +25,7 @@ import { AccountService } from './account/account.service';
 import { HomeService } from './posts/home.service';
 import { PostsFeedService } from './posts/posts-feed.service';
 import { PostService } from './posts/post.service';
+import { RewriteHttpInterceptor } from 'src/interceptors/rewrite-http-interceptor';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { PostService } from './posts/post.service';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorHttpInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: RewriteHttpInterceptor, multi: true },
     TokenService,
     AuthenticatedGuard,
     AccountService,
