@@ -26,6 +26,7 @@ import { HomeService } from './posts/home.service';
 import { PostsFeedService } from './posts/posts-feed.service';
 import { PostService } from './posts/post.service';
 import { RewriteHttpInterceptor } from 'src/interceptors/rewrite-http-interceptor';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { RewriteHttpInterceptor } from 'src/interceptors/rewrite-http-intercepto
     IonicModule.forRoot({ mode: 'ios' }),
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ImageCropperModule,
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

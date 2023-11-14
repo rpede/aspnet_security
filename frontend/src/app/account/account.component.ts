@@ -1,8 +1,9 @@
-import {Component, OnInit} from "@angular/core";
-import {delay, finalize, firstValueFrom} from "rxjs";
-import {AccountService, AccountUpdate} from "./account.service";
-import {FormBuilder, Validators} from "@angular/forms";
-import {HttpEventType} from "@angular/common/http";
+import { Component, OnInit } from '@angular/core';
+import { finalize, firstValueFrom } from 'rxjs';
+import { AccountService, AccountUpdate } from './account.service';
+import { FormBuilder, Validators } from '@angular/forms';
+import { HttpEventType } from '@angular/common/http';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
 
 @Component({
   template: `
@@ -19,21 +20,41 @@ import {HttpEventType} from "@angular/common/http";
           </ion-item>
 
           <ion-item>
-            <ion-img [src]="avatarUrl"></ion-img>
             <ion-input
-               label="Avatar"
-               type="file"
-               formControlName="avatar"
-               accept="image/png, image/jpeg"
-               (change)="onFileChanged($event)"></ion-input>
+              #avatarInput
+              [hidden]="true"
+              type="file"
+              label="Avatar"
+              formControlName="avatar"
+              accept="image/png, image/jpeg"
+              (change)="onFileChanged($event)"
+            ></ion-input>
+            <ion-img
+              *ngIf="avatarUrl && !imageChangedEvent"
+              [src]="avatarUrl"
+            ></ion-img>
+            <image-cropper
+              [hidden]="!imageChangedEvent"
+              [maintainAspectRatio]="true"
+              [resizeToHeight]="200"
+              [resizeToWidth]="200"
+              format="jpeg"
+              [imageChangedEvent]="imageChangedEvent"
+              (imageCropped)="imageCropped($event)"
+            ></image-cropper>
           </ion-item>
 
           <ion-item>
             <ion-toggle disabled [checked]="isAdmin">Administrator</ion-toggle>
           </ion-item>
         </ion-list>
-        <ion-progress-bar *ngIf="uploading" [value]="uploadProgress"></ion-progress-bar>
-        <ion-button *ngIf="form.valid && !uploading" (click)="submit()">Update</ion-button>
+        <ion-progress-bar
+          *ngIf="uploading"
+          [value]="uploadProgress"
+        ></ion-progress-bar>
+        <ion-button *ngIf="form.valid && !uploading" (click)="submit()">
+          Update
+        </ion-button>
       </form>
       <ng-template #loading>
         <ion-spinner></ion-spinner>
@@ -50,48 +71,49 @@ export class AccountComponent implements OnInit {
   form = this.fb.group({
     fullName: ['', Validators.required],
     email: ['', Validators.required],
-    avatar: [null as File | null],
+    avatar: [null as Blob | null],
   });
-  avatarUrl: string | ArrayBuffer | null = null;
+  avatarUrl?: string;
   isAdmin?: boolean;
+  imageChangedEvent: Event | undefined;
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly service: AccountService,
-  ) {
-  }
+    private readonly service: AccountService
+  ) {}
 
   async ngOnInit() {
     var account = await firstValueFrom(this.service.getCurrentUser());
     this.form.patchValue(account);
-    this.avatarUrl = account.avatarUrl;
+    this.avatarUrl = account.avatarUrl ?? undefined;
     this.isAdmin = account.isAdmin;
     this.loading = false;
   }
 
-  onFileChanged($event: Event) {
-    const files = ($event.target as HTMLInputElement).files;
-    if (!files) return;
-    this.form.patchValue({avatar: files[0]});
-    this.form.controls.avatar.updateValueAndValidity();
-    const reader = new FileReader();
-    reader.readAsDataURL(files[0]);
-    reader.onload = () => {
-      this.avatarUrl = reader.result;
-    }
+  onFileChanged(event: Event) {
+    this.imageChangedEvent = event;
+  }
+
+  imageCropped($event: ImageCroppedEvent) {
+    this.form.patchValue({ avatar: $event.blob! });
   }
 
   submit() {
     if (this.form.invalid) return;
     this.uploading = true;
-    this.service.update(this.form.value as AccountUpdate)
-      .pipe(finalize(() => {
-        this.uploading = false;
-        this.uploadProgress = null;
-      }))
-      .subscribe(event => {
+    this.service
+      .update(this.form.value as AccountUpdate)
+      .pipe(
+        finalize(() => {
+          this.uploading = false;
+          this.uploadProgress = null;
+        })
+      )
+      .subscribe((event) => {
         if (event.type == HttpEventType.UploadProgress) {
-          this.uploadProgress = Math.round(100 * (event.loaded / (event.total ?? 1)))
+          this.uploadProgress = Math.round(
+            100 * (event.loaded / (event.total ?? 1))
+          );
         } else if (event.type == HttpEventType.Response && event.body) {
           this.form.patchValue(event.body);
         }
