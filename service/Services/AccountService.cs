@@ -1,4 +1,3 @@
-using System.Security.Authentication;
 using infrastructure.DataModels;
 using infrastructure.Repositories;
 using Microsoft.Extensions.Logging;

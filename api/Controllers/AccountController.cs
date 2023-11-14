@@ -1,7 +1,4 @@
-using System.Net;
-using System.Security.Authentication;
 using api.Filters;
-using api.TransferModels;
 using Microsoft.AspNetCore.Mvc;
 using service;
 using service.Models.Command;
@@ -61,7 +58,7 @@ public class AccountController : ControllerBase
         string? avatarUrl = null;
         if (avatar != null)
         {
-            avatarUrl = this._accountService.Get(session)?.AvatarUrl;
+            avatarUrl = _accountService.Get(session)?.AvatarUrl;
             using var avatarStream = avatar.OpenReadStream();
             avatarUrl = _blobService.Save("avatar", avatarStream, avatarUrl);
         }

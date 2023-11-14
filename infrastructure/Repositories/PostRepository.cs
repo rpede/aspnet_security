@@ -1,4 +1,3 @@
-using System.Collections;
 using Dapper;
 using infrastructure.DataModels;
 using infrastructure.DataSources;

@@ -1,19 +1,9 @@
 using api;
 using api.Middleware;
-using Azure.Identity;
-using Azure.Storage.Blobs;
 using infrastructure.Repositories;
-using service;
 using service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// if (builder.Environment.IsProduction())
-// {
-//     builder.Configuration.AddAzureKeyVault(
-//         new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
-//         new DefaultAzureCredential());
-// }
 
 // Add services to the container.
 builder.Services.AddDataSource();

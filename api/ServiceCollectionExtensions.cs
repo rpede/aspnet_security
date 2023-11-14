@@ -1,4 +1,3 @@
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using infrastructure.DataSources;
 using Microsoft.AspNetCore.Hosting.Server;

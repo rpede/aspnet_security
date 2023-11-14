@@ -1,5 +1,3 @@
-using infrastructure.DataModels;
-
 namespace service.Models.Query;
 
 public class UserDetailQueryModel

@@ -1,6 +1,4 @@
-using api.Filters;
 using Microsoft.AspNetCore.Mvc;
-using service;
 using service.Services;
 
 namespace api.Controllers;
