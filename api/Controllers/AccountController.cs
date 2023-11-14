@@ -65,8 +65,9 @@ public class AccountController : ControllerBase
             using var avatarTransform = new ImageTransform(avatar.OpenReadStream())
                .Resize(200, 200)
                .FixOrientation()
-               .RemoveMetadata();
-            avatarUrl = _blobService.Save("avatar", avatarTransform.ToStream(), avatarUrl);
+               .RemoveMetadata()
+               .Jpeg();
+            avatarUrl = _blobService.Save("avatar", avatarTransform.ToStream(), "image/jpeg", avatarUrl);
         }
 
         _accountService.Update(session, model, avatarUrl);

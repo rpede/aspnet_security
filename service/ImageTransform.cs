@@ -50,6 +50,12 @@ public sealed class ImageTransform(Stream stream) : IDisposable
         return this;
     }
 
+    public ImageTransform Jpeg()
+    {
+        _image.Format = MagickFormat.Jpeg;
+        return this;
+    }
+
     /// <summary>
     /// Get a byte stream representing the transformed image.
     /// </summary>
