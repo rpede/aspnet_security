@@ -48,7 +48,7 @@ public class AccountController : ControllerBase
         var user = _accountService.Get(data);
         return Ok(user);
     }
-    
+
     [RequireAuthentication]
     [HttpPut]
     [Route("/api/account/update")]
@@ -59,9 +59,13 @@ public class AccountController : ControllerBase
         if (avatar != null)
         {
             avatarUrl = _accountService.Get(session)?.AvatarUrl;
-            using var avatarStream = avatar.OpenReadStream();
-            avatarUrl = _blobService.Save("avatar", avatarStream, avatarUrl);
+            using var avatarTransform = new ImageTransform(avatar.OpenReadStream())
+               .Resize(200, 200)
+               .FixOrientation()
+               .RemoveMetadata();
+            avatarUrl = _blobService.Save("avatar", avatarTransform.ToStream(), avatarUrl);
         }
+
         _accountService.Update(session, model, avatarUrl);
         return Ok();
     }
