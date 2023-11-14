@@ -1,3 +1,4 @@
+using System.Net;
 using api.Filters;
 using Microsoft.AspNetCore.Mvc;
 using service;
@@ -52,8 +53,10 @@ public class AccountController : ControllerBase
     [RequireAuthentication]
     [HttpPut]
     [Route("/api/account/update")]
+    //[RequestSizeLimit(10 * 1024 * 1024 /* 10MB */)] // 400 bad request
     public IActionResult Update([FromForm] UpdateAccountCommandModel model, IFormFile? avatar)
     {
+        if (avatar?.Length > 10 * 1024 * 1024) return StatusCode(StatusCodes.Status413PayloadTooLarge);
         var session = HttpContext.GetSessionData()!;
         string? avatarUrl = null;
         if (avatar != null)
