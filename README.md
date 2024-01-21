@@ -53,3 +53,4 @@ Challenges have to be completed in order this time.
 - [Session management](session_management.md)
 - [Cookie Session](cookie_session.md)
 - [Header JWT](header_jwt.md)
+- [Challenges](authentication_challenges.md)
